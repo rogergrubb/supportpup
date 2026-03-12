@@ -903,18 +903,6 @@
       </div>
 
       <div class="talk-btn-wrap">
-        <!-- Pre-check distress -->
-        <div class="distress-card">
-          <div class="distress-title">How are you feeling? <span style="opacity:0.5">(optional)</span></div>
-          <div class="distress-pills" id="distress-pre">
-            <button class="distress-pill" data-val="1" onclick="selectDistress('pre',1)"><span class="emoji">😌</span>Calm</button>
-            <button class="distress-pill" data-val="2" onclick="selectDistress('pre',2)"><span class="emoji">😕</span>Uneasy</button>
-            <button class="distress-pill" data-val="3" onclick="selectDistress('pre',3)"><span class="emoji">😰</span>Stressed</button>
-            <button class="distress-pill" data-val="4" onclick="selectDistress('pre',4)"><span class="emoji">😢</span>Overwhelmed</button>
-            <button class="distress-pill" data-val="5" onclick="selectDistress('pre',5)"><span class="emoji">🆘</span>Crisis</button>
-          </div>
-        </div>
-
         <button class="talk-btn" id="talk-btn" onclick="startSession()">
           <span class="btn-icon">🐾</span>
           <span class="btn-label">I'm Triggered</span>
@@ -1164,7 +1152,8 @@ let state = {
   sessions: [],
   settings: { voice: true, reminders: false },
   currentSession: null,
-  deferredInstall: null
+  deferredInstall: null,
+  exerciseCompleted: false
 };
 
 // ========== INIT ==========
@@ -1323,10 +1312,7 @@ function typeResponse(text) {
     } else {
       clearInterval(interval);
       showToolSuggestions();
-      setTimeout(() => {
-        document.getElementById('after-check').style.display = 'block';
-        document.getElementById('done-btn').style.display = 'block';
-      }, 800);
+      // after-check and done-btn shown only after completing an exercise (closeModalDirect handles this)
     }
   }, 18);
 }
@@ -1353,6 +1339,7 @@ function completeSession() {
   }
   state.preDistress = null;
   state.postDistress = null;
+  state.exerciseCompleted = false;
   state.transcript = '';
   state.currentSession = null;
   document.querySelectorAll('.distress-pill').forEach(p => p.classList.remove('selected'));
@@ -1454,6 +1441,7 @@ function openTool(toolId) {
   ).join('');
   document.getElementById('tool-modal').classList.add('open');
   if (state.currentSession) state.currentSession.toolUsed = toolId;
+  state.exerciseCompleted = true;
 }
 
 function closeModal(e) {
@@ -1461,6 +1449,13 @@ function closeModal(e) {
 }
 function closeModalDirect() {
   document.getElementById('tool-modal').classList.remove('open');
+  // Only ask how they feel AFTER completing at least one exercise
+  if (state.exerciseCompleted && state.currentScreen === 'response') {
+    const afterCheck = document.getElementById('after-check');
+    const doneBtn = document.getElementById('done-btn');
+    if (afterCheck) afterCheck.style.display = 'block';
+    if (doneBtn) doneBtn.style.display = 'block';
+  }
 }
 
 // ========== HISTORY ==========
