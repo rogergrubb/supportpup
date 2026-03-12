@@ -819,6 +819,169 @@
   }
   .dismiss-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1rem; padding: 4px; }
 
+
+  /* ---- CHAT CONVERSATION ---- */
+  .chat-thread {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    scroll-behavior: smooth;
+  }
+
+  .msg-row {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+    animation: fadeIn 0.3s ease;
+  }
+
+  .msg-row.user-row { flex-direction: row-reverse; }
+
+  .msg-avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--pup-gold), var(--pup-warm));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem; flex-shrink: 0;
+  }
+
+  .msg-bubble {
+    max-width: 78%;
+    padding: 12px 16px;
+    border-radius: 18px;
+    font-size: 0.92rem;
+    line-height: 1.65;
+    font-weight: 500;
+  }
+
+  .pup-msg .msg-bubble {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-bottom-left-radius: 4px;
+    color: var(--text);
+  }
+
+  .user-row .msg-bubble {
+    background: linear-gradient(135deg, rgba(255,209,102,0.15), rgba(255,140,105,0.15));
+    border: 1px solid rgba(255,209,102,0.25);
+    border-bottom-right-radius: 4px;
+    color: var(--text);
+    text-align: right;
+  }
+
+  .msg-typing .msg-bubble {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-bottom-left-radius: 4px;
+    padding: 14px 18px;
+  }
+
+  /* ---- REPLY INPUT BAR ---- */
+  .reply-bar {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .reply-input-wrap {
+    flex: 1;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 22px;
+    display: flex;
+    align-items: flex-end;
+    padding: 8px 14px;
+    gap: 8px;
+    transition: border-color 0.2s;
+  }
+  .reply-input-wrap:focus-within { border-color: var(--pup-soft); }
+
+  .reply-textarea {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: 'Quicksand', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    resize: none;
+    max-height: 120px;
+    line-height: 1.5;
+    overflow-y: auto;
+  }
+  .reply-textarea::placeholder { color: var(--text-muted); }
+
+  .reply-mic-btn {
+    background: none; border: none;
+    color: var(--text-muted); cursor: pointer;
+    font-size: 1.1rem; padding: 2px;
+    transition: color 0.2s; flex-shrink: 0;
+    line-height: 1;
+  }
+  .reply-mic-btn:hover { color: var(--pup-gold); }
+  .reply-mic-btn.recording { color: var(--crisis-red); animation: recordPulse 1s ease-in-out infinite; }
+
+  .reply-send-btn {
+    width: 42px; height: 42px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--pup-gold), var(--pup-warm));
+    border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem; flex-shrink: 0;
+    transition: all 0.2s;
+    box-shadow: 0 3px 12px rgba(255,140,105,0.35);
+  }
+  .reply-send-btn:hover { transform: scale(1.08); }
+  .reply-send-btn:active { transform: scale(0.95); }
+  .reply-send-btn:disabled { opacity: 0.4; cursor: default; transform: none; }
+
+  .chat-tools-bar {
+    padding: 0 16px 10px;
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    flex-shrink: 0;
+    scrollbar-width: none;
+  }
+  .chat-tools-bar::-webkit-scrollbar { display: none; }
+
+  .chat-tool-pill {
+    padding: 7px 14px;
+    border-radius: 100px;
+    border: 1.5px solid rgba(127,219,202,0.3);
+    background: rgba(127,219,202,0.06);
+    color: var(--pup-mint);
+    font-family: 'Quicksand', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .chat-tool-pill:hover { background: rgba(127,219,202,0.15); border-color: var(--pup-mint); }
+
+  .chat-end-btn {
+    margin: 0 16px 8px;
+    padding: 12px;
+    border-radius: 100px;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .chat-end-btn:hover { border-color: var(--pup-soft); color: var(--text); }
 </style>
 </head>
 <body>
@@ -953,54 +1116,58 @@
     </div>
   </div>
 
-  <!-- RESPONSE SCREEN -->
-  <div class="screen" id="screen-response">
+  <!-- RESPONSE SCREEN — full conversational chat -->
+  <div class="screen" id="screen-response" style="overflow:hidden;">
     <div class="app-header">
       <button class="header-btn" onclick="goHome()">🏠</button>
-      <div class="logo"><span class="logo-pup">🐾</span> Pup Says...</div>
+      <div class="logo" style="font-size:1.1rem"><span class="logo-pup">🐾</span> Talking with Pup</div>
       <div style="width:38px"></div>
     </div>
 
-    <div class="response-content">
-      <div class="pup-bubble">
-        <div class="pup-bubble-header">
-          <div class="pup-avatar">🐾</div>
-          <div>
-            <div class="pup-name">SupportPup</div>
-            <div class="pup-name-sub">Your pocket companion</div>
-          </div>
-        </div>
-        <div class="pup-response-text" id="ai-response">
-          <div class="typing-dots">
-            <div class="typing-dot"></div>
-            <div class="typing-dot"></div>
-            <div class="typing-dot"></div>
-          </div>
-        </div>
-      </div>
+    <!-- Crisis banner -->
+    <div id="crisis-banner" class="crisis-banner" style="margin:0 16px 4px; display:none">
+      <strong>💛 You matter.</strong> If you're in a really hard moment, please consider reaching out to someone you trust or calling/texting 988 (Suicide & Crisis Lifeline) — available 24/7.
+    </div>
 
-      <div id="crisis-banner" class="crisis-banner">
-        <strong>💛 You matter.</strong> If you're in a really hard moment, please consider reaching out to someone you trust or calling/texting 988 (Suicide & Crisis Lifeline) — available 24/7.
-      </div>
+    <!-- Scrollable chat thread -->
+    <div class="chat-thread" id="chat-thread"></div>
 
-      <div class="tool-section" id="tool-section" style="display:none">
-        <div class="tool-section-title">🌿 Would you like to try a tool?</div>
-        <div class="tool-chips" id="tool-chips"></div>
-      </div>
+    <!-- Grounding tools strip — appears after first response -->
+    <div class="chat-tools-bar" id="chat-tools-bar" style="display:none">
+      <button class="chat-tool-pill" onclick="openTool('grounding')">👁️ 5-4-3-2-1</button>
+      <button class="chat-tool-pill" onclick="openTool('breathing')">🌬️ Calm Breath</button>
+      <button class="chat-tool-pill" onclick="openTool('reframe')">🔭 Wiser Self</button>
+      <button class="chat-tool-pill" onclick="openTool('gratitude')">💛 Gratitude</button>
+      <button class="chat-tool-pill" onclick="openTool('safe')">🌅 Safe Place</button>
+      <button class="chat-tool-pill" onclick="openTool('physical')">🤸 Body Reset</button>
+    </div>
 
-      <div class="after-check" id="after-check" style="display:none">
-        <div class="distress-title" style="text-align:left; margin-bottom:12px">How do you feel now?</div>
-        <div class="distress-pills" id="distress-post">
-          <button class="distress-pill" data-val="1" onclick="selectDistress('post',1)"><span class="emoji">😌</span>Better</button>
-          <button class="distress-pill" data-val="2" onclick="selectDistress('post',2)"><span class="emoji">🙂</span>Bit better</button>
-          <button class="distress-pill" data-val="3" onclick="selectDistress('post',3)"><span class="emoji">😐</span>Same</button>
-          <button class="distress-pill" data-val="4" onclick="selectDistress('post',4)"><span class="emoji">😔</span>Worse</button>
-        </div>
+    <!-- After-check — appears after exercise -->
+    <div class="after-check" id="after-check" style="display:none; margin:0 16px 8px;">
+      <div class="distress-title" style="text-align:left; margin-bottom:10px; font-size:0.9rem">How do you feel now?</div>
+      <div class="distress-pills" id="distress-post">
+        <button class="distress-pill" data-val="1" onclick="selectDistress('post',1)"><span class="emoji">😌</span>Better</button>
+        <button class="distress-pill" data-val="2" onclick="selectDistress('post',2)"><span class="emoji">🙂</span>Bit better</button>
+        <button class="distress-pill" data-val="3" onclick="selectDistress('post',3)"><span class="emoji">😐</span>Same</button>
+        <button class="distress-pill" data-val="4" onclick="selectDistress('post',4)"><span class="emoji">😔</span>Worse</button>
       </div>
+    </div>
 
-      <button class="session-done-btn" id="done-btn" onclick="completeSession()" style="display:none">
-        ✓ Session Complete — Good job, you showed up 🐾
-      </button>
+    <!-- End session -->
+    <button class="chat-end-btn" id="done-btn" onclick="completeSession()" style="display:none">
+      ✓ End session — Good job showing up today 🐾
+    </button>
+
+    <!-- Reply input bar -->
+    <div class="reply-bar" id="reply-bar" style="display:none">
+      <div class="reply-input-wrap">
+        <button class="reply-mic-btn" id="reply-mic-btn" onclick="toggleReplyMic()" title="Voice input">🎙</button>
+        <textarea class="reply-textarea" id="reply-input" rows="1"
+          placeholder="Reply to Pup..."
+          oninput="autoResizeReply(this)"
+          onkeydown="replyKeydown(event)"></textarea>
+      </div>
+      <button class="reply-send-btn" id="reply-send-btn" onclick="sendReply()">➤</button>
     </div>
   </div>
 
@@ -1171,7 +1338,8 @@ let state = {
   settings: { voice: true, reminders: false, pupVoice: false },
   currentSession: null,
   deferredInstall: null,
-  exerciseCompleted: false
+  exerciseCompleted: false,
+  conversationHistory: []
 };
 
 // ========== INIT ==========
@@ -1273,6 +1441,7 @@ async function submitToAI() {
   }
   stopRecording();
   state.transcript = text;
+  state.conversationHistory = [];
   state.currentSession = {
     id: Date.now(),
     timestamp: new Date().toISOString(),
@@ -1280,64 +1449,211 @@ async function submitToAI() {
     transcript: text,
     aiResponse: '',
     toolUsed: null,
-    postDistress: null
+    postDistress: null,
+    messages: []
   };
   navTo('response');
   document.getElementById('main-nav').style.display = 'none';
+  document.getElementById('crisis-banner').style.display = 'none';
+  document.getElementById('chat-thread').innerHTML = '';
+  document.getElementById('chat-tools-bar').style.display = 'none';
   document.getElementById('after-check').style.display = 'none';
   document.getElementById('done-btn').style.display = 'none';
-  document.getElementById('tool-section').style.display = 'none';
-  document.getElementById('crisis-banner').classList.remove('show');
-  document.getElementById('ai-response').innerHTML = '<div class="typing-dots"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
+  document.getElementById('reply-bar').style.display = 'none';
+
+  // Show user's opening message in thread
+  appendUserMessage(text);
+  appendTypingIndicator();
   await getAIResponse(text);
 }
 
 async function getAIResponse(userText) {
-  const isCrisis = state.preDistress >= 5 || /crisis|hurt myself|end it|suicide|want to die/i.test(userText);
-  if (isCrisis) document.getElementById('crisis-banner').classList.add('show');
+  const isCrisis = /crisis|hurt myself|end it|suicide|want to die|kill myself/i.test(userText);
+  if (isCrisis) {
+    const b = document.getElementById('crisis-banner');
+    b.style.display = 'block';
+  }
+
+  // Build message history for context — full conversation
+  state.conversationHistory.push({ role: 'user', content: userText });
+  if (state.currentSession) state.currentSession.messages = [...state.conversationHistory];
 
   try {
     const res = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userText, preDistress: state.preDistress })
+      body: JSON.stringify({
+        messages: state.conversationHistory,
+        preDistress: state.preDistress
+      })
     });
     if (!res.ok) throw new Error('proxy error');
     const data = await res.json();
     const resp = data.response || "I'm here with you. Take one slow breath. You're safe right now. 🐾";
-    typeResponse(resp);
-    if (state.currentSession) state.currentSession.aiResponse = resp;
+    state.conversationHistory.push({ role: 'assistant', content: resp });
+    if (state.currentSession) {
+      state.currentSession.aiResponse = resp;
+      state.currentSession.messages = [...state.conversationHistory];
+    }
+    removeTypingIndicator();
+    appendPupMessage(resp);
+    if (state.settings.pupVoice) speakResponse(resp);
+    showChatTools();
   } catch (e) {
     const fallbacks = [
-      "I hear you, and I'm really glad you reached out. What you're feeling makes sense. Right now, in this moment, you are safe. Take one slow breath in and let it out. Would you like to try the 5-4-3-2-1 grounding exercise? 🐾",
-      "Thank you for trusting me with this. Those feelings are real and valid. Right now you're here, and that's enough. Take a gentle breath and wiggle your toes. Want to try a calming breath exercise? 💛",
-      "That sounds really hard, and I'm here with you. You reached out and that takes courage. Right now this moment is yours and you are safe in it. Place your hand on your heart. Want to try a grounding scan? 🌿"
+      "I hear you, and I'm really glad you reached out. What you're feeling makes sense. Right now, in this moment, you are safe. Take one slow breath in and let it out. 🐾",
+      "Thank you for trusting me with this. Those feelings are real and valid. Right now you're here, and that's enough. Take a gentle breath and wiggle your toes. 💛",
+      "That sounds really hard, and I'm here with you. You reached out and that takes courage. Right now this moment is yours and you are safe in it. 🌿"
     ];
     const resp = fallbacks[Math.floor(Math.random() * fallbacks.length)];
-    typeResponse(resp);
-    if (state.currentSession) state.currentSession.aiResponse = resp;
+    state.conversationHistory.push({ role: 'assistant', content: resp });
+    removeTypingIndicator();
+    appendPupMessage(resp);
+    showChatTools();
   }
 }
 
-function typeResponse(text) {
-  const el = document.getElementById('ai-response');
-  el.textContent = '';
-  // Cancel any in-progress speech
-  window.speechSynthesis && window.speechSynthesis.cancel();
+// ── CHAT THREAD HELPERS ──────────────────────────────────────────────────
+function appendUserMessage(text) {
+  const thread = document.getElementById('chat-thread');
+  const row = document.createElement('div');
+  row.className = 'msg-row user-row';
+  row.innerHTML = `<div class="msg-bubble">${escapeHtml(text)}</div>`;
+  thread.appendChild(row);
+  scrollThread();
+}
+
+function appendPupMessage(text) {
+  const thread = document.getElementById('chat-thread');
+  const row = document.createElement('div');
+  row.className = 'msg-row pup-msg';
+  const bubble = document.createElement('div');
+  bubble.className = 'msg-bubble';
+  row.innerHTML = `<div class="msg-avatar">🐾</div>`;
+  row.appendChild(bubble);
+  thread.appendChild(row);
+  scrollThread();
+  // Typewriter into bubble
   let i = 0;
   const interval = setInterval(() => {
     if (i < text.length) {
-      el.textContent += text[i];
-      i++;
+      bubble.textContent += text[i++];
+      if (i % 20 === 0) scrollThread();
     } else {
       clearInterval(interval);
-      showToolSuggestions();
-      // after-check and done-btn shown only after completing an exercise (closeModalDirect handles this)
-      // Speak after text is fully displayed
-      if (state.settings.pupVoice) speakResponse(text);
+      showDoneBtnIfReady();
     }
-  }, 18);
+  }, 16);
 }
+
+function appendTypingIndicator() {
+  const thread = document.getElementById('chat-thread');
+  const row = document.createElement('div');
+  row.className = 'msg-row pup-msg msg-typing';
+  row.id = 'typing-indicator';
+  row.innerHTML = `<div class="msg-avatar">🐾</div>
+    <div class="msg-bubble">
+      <div class="typing-dots">
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+      </div>
+    </div>`;
+  thread.appendChild(row);
+  scrollThread();
+}
+
+function removeTypingIndicator() {
+  const el = document.getElementById('typing-indicator');
+  if (el) el.remove();
+}
+
+function scrollThread() {
+  const thread = document.getElementById('chat-thread');
+  thread.scrollTop = thread.scrollHeight;
+}
+
+function escapeHtml(t) {
+  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+}
+
+function showChatTools() {
+  document.getElementById('chat-tools-bar').style.display = 'flex';
+  document.getElementById('reply-bar').style.display = 'flex';
+}
+
+function showDoneBtnIfReady() {
+  // Done btn always available after first exchange
+  document.getElementById('done-btn').style.display = 'block';
+}
+
+// ── REPLY BAR ──────────────────────────────────────────────────────────────
+let replyRecognition = null;
+let replyRecording = false;
+
+function autoResizeReply(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+function replyKeydown(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendReply();
+  }
+}
+
+async function sendReply() {
+  const input = document.getElementById('reply-input');
+  const text = input.value.trim();
+  if (!text) return;
+  stopReplyMic();
+  input.value = '';
+  input.style.height = 'auto';
+  document.getElementById('reply-send-btn').disabled = true;
+
+  appendUserMessage(text);
+  appendTypingIndicator();
+  scrollThread();
+
+  await getAIResponse(text);
+  document.getElementById('reply-send-btn').disabled = false;
+}
+
+function toggleReplyMic() {
+  if (replyRecording) { stopReplyMic(); return; }
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) return;
+  replyRecognition = new SpeechRecognition();
+  replyRecognition.continuous = false;
+  replyRecognition.interimResults = true;
+  replyRecognition.lang = 'en-US';
+  const btn = document.getElementById('reply-mic-btn');
+  const input = document.getElementById('reply-input');
+  replyRecognition.onstart = () => { replyRecording = true; btn.classList.add('recording'); btn.textContent = '⏹'; };
+  replyRecognition.onresult = (e) => {
+    let final = '', interim = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) final += e.results[i][0].transcript;
+      else interim += e.results[i][0].transcript;
+    }
+    input.value = final || interim;
+    autoResizeReply(input);
+  };
+  replyRecognition.onend = () => { stopReplyMic(); if (input.value.trim()) sendReply(); };
+  replyRecognition.onerror = () => stopReplyMic();
+  replyRecognition.start();
+}
+
+function stopReplyMic() {
+  if (replyRecognition) { try { replyRecognition.stop(); } catch(e) {} replyRecognition = null; }
+  replyRecording = false;
+  const btn = document.getElementById('reply-mic-btn');
+  if (btn) { btn.classList.remove('recording'); btn.textContent = '🎙'; }
+}
+
+// typeResponse replaced by appendPupMessage for chat UI
+function typeResponse(text) { appendPupMessage(text); }
 
 function getBestFemaleVoice() {
   const voices = window.speechSynthesis.getVoices();
@@ -1375,20 +1691,7 @@ function previewPupVoice() {
   speakResponse("Hi, I'm Pup. I'm right here with you. You're safe in this moment.");
 }
 
-function showToolSuggestions() {
-  const tools = [
-    { id: 'grounding', label: '👁️ 5-4-3-2-1 Scan' },
-    { id: 'breathing', label: '🌬️ Calm Breath' },
-    { id: 'reframe', label: '🔭 Wiser Self' },
-    { id: 'gratitude', label: '💛 Gratitude' },
-  ];
-  const section = document.getElementById('tool-section');
-  const chips = document.getElementById('tool-chips');
-  chips.innerHTML = tools.map(t => 
-    `<button class="tool-chip" onclick="openTool('${t.id}')">${t.label}</button>`
-  ).join('');
-  section.style.display = 'block';
-}
+// showToolSuggestions replaced by showChatTools / chat-tools-bar
 
 function completeSession() {
   if (state.currentSession) {
@@ -1398,6 +1701,8 @@ function completeSession() {
   state.preDistress = null;
   state.postDistress = null;
   state.exerciseCompleted = false;
+  state.conversationHistory = [];
+  stopReplyMic();
   state.transcript = '';
   state.currentSession = null;
   document.querySelectorAll('.distress-pill').forEach(p => p.classList.remove('selected'));
