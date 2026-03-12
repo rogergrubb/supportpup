@@ -1,0 +1,1558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#2D1B4E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SupportPup">
+<meta name="description" content="Your pocket support dog when life gets loud.">
+<title>SupportPup 🐾</title>
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #1A0F2E;
+    --surface: #241540;
+    --surface2: #2D1B4E;
+    --pup-gold: #FFD166;
+    --pup-warm: #FF8C69;
+    --pup-soft: #C8A8E9;
+    --pup-mint: #7FDBCA;
+    --text: #F0E6FF;
+    --text-muted: #9B8AB8;
+    --crisis-red: #FF6B6B;
+    --calm-green: #6BCB77;
+    --border: rgba(200,168,233,0.15);
+    --glow: rgba(255,209,102,0.3);
+    --radius: 24px;
+    --radius-sm: 14px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Quicksand', sans-serif;
+    overflow-x: hidden;
+    overscroll-behavior: none;
+  }
+
+  /* Animated background stars */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: 
+      radial-gradient(ellipse 80% 60% at 50% -10%, rgba(127,219,202,0.12) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 80%, rgba(255,140,105,0.08) 0%, transparent 50%),
+      radial-gradient(ellipse 40% 60% at 10% 60%, rgba(200,168,233,0.1) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ---- APP SHELL ---- */
+  #app {
+    position: relative;
+    max-width: 430px;
+    margin: 0 auto;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    z-index: 1;
+  }
+
+  /* ---- SCREENS ---- */
+  .screen { display: none; flex-direction: column; flex: 1; animation: fadeIn 0.4s ease; }
+  .screen.active { display: flex; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ---- HEADER ---- */
+  .app-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px 8px;
+    flex-shrink: 0;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 1.4rem;
+    color: var(--pup-gold);
+    letter-spacing: -0.5px;
+  }
+
+  .logo-pup { font-size: 1.8rem; animation: wagTail 2s ease-in-out infinite; display: inline-block; }
+  @keyframes wagTail {
+    0%, 100% { transform: rotate(-5deg); }
+    50% { transform: rotate(5deg); }
+  }
+
+  .header-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .header-btn:hover { background: var(--surface2); color: var(--text); }
+
+  /* ---- NAV TABS ---- */
+  .nav-tabs {
+    display: flex;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
+    gap: 4px;
+    flex-shrink: 0;
+  }
+
+  .nav-tab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 8px 4px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-family: 'Quicksand', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 600;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .nav-tab .icon { font-size: 1.3rem; }
+  .nav-tab.active { color: var(--pup-gold); background: rgba(255,209,102,0.08); }
+  .nav-tab:hover { color: var(--text); }
+
+  /* ---- HOME SCREEN ---- */
+  .home-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    gap: 28px;
+  }
+
+  .mascot-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .mascot-svg {
+    width: 160px;
+    height: 160px;
+    filter: drop-shadow(0 0 30px rgba(255,209,102,0.4));
+    animation: float 3s ease-in-out infinite;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  .mascot-svg:hover { transform: scale(1.05); }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  .mascot-greeting {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 1.6rem;
+    text-align: center;
+    color: var(--text);
+    line-height: 1.2;
+  }
+  .mascot-greeting span { color: var(--pup-gold); }
+
+  .mascot-sub {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    text-align: center;
+    font-weight: 500;
+    max-width: 240px;
+    line-height: 1.5;
+  }
+
+  /* ---- BIG TALK BUTTON ---- */
+  .talk-btn-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .talk-btn {
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #FFD166, #FF8C69);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    color: var(--bg);
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 1.1rem;
+    letter-spacing: -0.3px;
+    box-shadow: 0 0 0 0 rgba(255,209,102,0.5), 0 8px 40px rgba(255,140,105,0.4);
+    transition: all 0.2s;
+    animation: pulseGlow 2.5s ease-in-out infinite;
+    position: relative;
+    overflow: hidden;
+  }
+
+  @keyframes pulseGlow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255,209,102,0.4), 0 8px 40px rgba(255,140,105,0.3); }
+    50% { box-shadow: 0 0 0 16px rgba(255,209,102,0.0), 0 8px 60px rgba(255,140,105,0.5); }
+  }
+
+  .talk-btn:active { transform: scale(0.95); }
+  .talk-btn .btn-icon { font-size: 2.4rem; }
+  .talk-btn .btn-label { font-size: 1rem; }
+  .talk-btn .btn-sub { font-size: 0.7rem; font-weight: 600; opacity: 0.7; }
+
+  .talk-btn.recording {
+    background: linear-gradient(135deg, #FF6B6B, #FF8C69);
+    animation: recordPulse 1s ease-in-out infinite;
+  }
+  @keyframes recordPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255,107,107,0.5), 0 8px 40px rgba(255,107,107,0.4); }
+    50% { box-shadow: 0 0 0 20px rgba(255,107,107,0.0), 0 8px 60px rgba(255,107,107,0.6); }
+  }
+
+  .talk-hint {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-align: center;
+    animation: fadeInOut 4s ease-in-out infinite;
+  }
+  @keyframes fadeInOut { 0%,100% { opacity:0.5; } 50% { opacity:1; } }
+
+  /* ---- DISTRESS SCALE ---- */
+  .distress-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    width: 100%;
+  }
+
+  .distress-title {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 1rem;
+    margin-bottom: 14px;
+    text-align: center;
+    color: var(--text);
+  }
+
+  .distress-pills {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+  }
+
+  .distress-pill {
+    flex: 1;
+    padding: 10px 4px;
+    border-radius: 100px;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    color: var(--text-muted);
+    font-family: 'Quicksand', sans-serif;
+    font-size: 0.6rem;
+    font-weight: 700;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  .distress-pill .emoji { font-size: 1.2rem; }
+  .distress-pill.selected { border-color: var(--pup-gold); background: rgba(255,209,102,0.1); color: var(--pup-gold); }
+  .distress-pill:hover { border-color: var(--pup-soft); color: var(--pup-soft); }
+
+  /* ---- RECORDING SCREEN ---- */
+  .recording-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    gap: 24px;
+  }
+
+  .waveform-area {
+    width: 100%;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+  }
+
+  .wave-bar {
+    width: 4px;
+    border-radius: 4px;
+    background: var(--pup-gold);
+    animation: wave 0.8s ease-in-out infinite;
+    opacity: 0.3;
+  }
+  .wave-bar:nth-child(1) { animation-delay: 0s; }
+  .wave-bar:nth-child(2) { animation-delay: 0.1s; }
+  .wave-bar:nth-child(3) { animation-delay: 0.2s; }
+  .wave-bar:nth-child(4) { animation-delay: 0.3s; }
+  .wave-bar:nth-child(5) { animation-delay: 0.4s; }
+  .wave-bar:nth-child(6) { animation-delay: 0.3s; }
+  .wave-bar:nth-child(7) { animation-delay: 0.2s; }
+  .wave-bar:nth-child(8) { animation-delay: 0.1s; }
+  .wave-bar:nth-child(9) { animation-delay: 0s; }
+
+  @keyframes wave {
+    0%, 100% { height: 8px; opacity: 0.3; }
+    50% { height: 50px; opacity: 1; }
+  }
+
+  .recording-label {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 1.3rem;
+    color: var(--pup-warm);
+    text-align: center;
+  }
+
+  .transcript-box {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    min-height: 100px;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--text);
+    font-weight: 500;
+  }
+  .transcript-placeholder { color: var(--text-muted); font-style: italic; }
+
+  textarea.transcript-box {
+    resize: none;
+    outline: none;
+    font-family: 'Quicksand', sans-serif;
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+    width: 100%;
+  }
+  textarea.transcript-box:focus { border-color: var(--pup-soft); }
+
+  .recording-actions {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .btn-secondary {
+    flex: 1;
+    padding: 14px;
+    border-radius: 100px;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-secondary:hover { border-color: var(--pup-soft); color: var(--text); }
+
+  .btn-primary {
+    flex: 2;
+    padding: 14px;
+    border-radius: 100px;
+    border: none;
+    background: linear-gradient(135deg, var(--pup-gold), var(--pup-warm));
+    color: var(--bg);
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 20px rgba(255,140,105,0.3);
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(255,140,105,0.4); }
+  .btn-primary:active { transform: translateY(0); }
+
+  /* ---- RESPONSE SCREEN ---- */
+  .response-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    gap: 16px;
+    overflow-y: auto;
+  }
+
+  .pup-bubble {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    border-top-left-radius: 6px;
+    padding: 20px;
+    position: relative;
+  }
+
+  .pup-bubble-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .pup-avatar {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--pup-gold), var(--pup-warm));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem;
+    flex-shrink: 0;
+  }
+
+  .pup-name {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 0.9rem;
+    color: var(--pup-gold);
+  }
+  .pup-name-sub { font-size: 0.7rem; color: var(--text-muted); font-weight: 500; }
+
+  .pup-response-text {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .typing-dots {
+    display: flex; gap: 5px; align-items: center; padding: 4px 0;
+  }
+  .typing-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--pup-gold);
+    animation: typingBounce 1.2s ease-in-out infinite;
+  }
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes typingBounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+    30% { transform: translateY(-6px); opacity: 1; }
+  }
+
+  .tool-section {
+    background: var(--surface);
+    border: 1px solid rgba(127,219,202,0.2);
+    border-radius: var(--radius);
+    padding: 16px;
+  }
+  .tool-section-title {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 0.85rem;
+    color: var(--pup-mint);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+  }
+  .tool-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .tool-chip {
+    padding: 8px 14px;
+    border-radius: 100px;
+    border: 1.5px solid rgba(127,219,202,0.3);
+    background: rgba(127,219,202,0.06);
+    color: var(--pup-mint);
+    font-family: 'Quicksand', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .tool-chip:hover { background: rgba(127,219,202,0.15); border-color: var(--pup-mint); }
+  .tool-chip.active { background: rgba(127,219,202,0.2); border-color: var(--pup-mint); color: #fff; }
+
+  .after-check {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+  }
+
+  .session-done-btn {
+    width: 100%;
+    padding: 16px;
+    border-radius: 100px;
+    border: none;
+    background: linear-gradient(135deg, var(--pup-soft), #8B5CF6);
+    color: white;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 20px rgba(139,92,246,0.3);
+  }
+  .session-done-btn:hover { transform: translateY(-1px); }
+
+  /* ---- TOOL MODAL ---- */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(8px);
+    z-index: 100;
+    align-items: flex-end;
+    animation: fadeIn 0.2s ease;
+  }
+  .modal-overlay.open { display: flex; }
+
+  .modal-sheet {
+    width: 100%;
+    max-width: 430px;
+    margin: 0 auto;
+    background: var(--surface2);
+    border-radius: var(--radius) var(--radius) 0 0;
+    padding: 24px 24px calc(24px + env(safe-area-inset-bottom));
+    animation: slideUp 0.3s ease;
+    max-height: 85dvh;
+    overflow-y: auto;
+  }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+  .modal-handle {
+    width: 36px; height: 4px;
+    background: var(--border);
+    border-radius: 4px;
+    margin: 0 auto 20px;
+  }
+
+  .modal-title {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 1.4rem;
+    margin-bottom: 6px;
+    color: var(--text);
+  }
+  .modal-sub { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px; line-height: 1.5; }
+
+  .exercise-step {
+    background: var(--surface);
+    border-radius: var(--radius-sm);
+    padding: 14px;
+    margin-bottom: 10px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .step-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--pup-gold), var(--pup-warm));
+    color: var(--bg);
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 0.8rem;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .step-text { font-size: 0.9rem; line-height: 1.5; color: var(--text); font-weight: 500; }
+  .step-label { font-family: 'Nunito', sans-serif; font-weight: 800; color: var(--pup-gold); margin-bottom: 2px; font-size: 0.8rem; }
+
+  .modal-close-btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 100px;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 12px;
+    transition: all 0.2s;
+  }
+  .modal-close-btn:hover { color: var(--text); border-color: var(--pup-soft); }
+
+  /* ---- HISTORY SCREEN ---- */
+  .screen-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 20px;
+  }
+
+  .screen-title {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 1.4rem;
+    margin-bottom: 16px;
+    color: var(--text);
+  }
+
+  .history-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    gap: 12px;
+    color: var(--text-muted);
+    text-align: center;
+  }
+  .history-empty .empty-icon { font-size: 3rem; opacity: 0.4; }
+  .history-empty p { font-size: 0.9rem; line-height: 1.5; max-width: 220px; }
+
+  .session-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .session-card:hover { border-color: var(--pup-soft); transform: translateY(-1px); }
+
+  .session-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .session-date { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
+  .session-distress-badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-family: 'Nunito', sans-serif;
+  }
+  .badge-1 { background: rgba(107,203,119,0.15); color: var(--calm-green); }
+  .badge-2 { background: rgba(127,219,202,0.15); color: var(--pup-mint); }
+  .badge-3 { background: rgba(255,209,102,0.15); color: var(--pup-gold); }
+  .badge-4 { background: rgba(255,140,105,0.15); color: var(--pup-warm); }
+  .badge-5 { background: rgba(255,107,107,0.15); color: var(--crisis-red); }
+
+  .session-preview {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* ---- TOOLS SCREEN ---- */
+  .tools-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .tool-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    text-align: center;
+  }
+  .tool-card:hover { border-color: var(--pup-gold); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(255,209,102,0.1); }
+  .tool-card .tool-icon { font-size: 2rem; }
+  .tool-card .tool-name { font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 0.85rem; color: var(--text); }
+  .tool-card .tool-desc { font-size: 0.7rem; color: var(--text-muted); line-height: 1.4; }
+
+  /* ---- SETTINGS SCREEN ---- */
+  .settings-section { margin-bottom: 24px; }
+  .settings-section-title {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+  }
+
+  .settings-row {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+  }
+
+  .settings-row-label { font-size: 0.9rem; font-weight: 600; color: var(--text); }
+  .settings-row-sub { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+
+  .toggle {
+    width: 46px; height: 26px;
+    background: var(--surface2);
+    border-radius: 100px;
+    position: relative;
+    cursor: pointer;
+    border: 1.5px solid var(--border);
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .toggle::after {
+    content: '';
+    position: absolute;
+    top: 2px; left: 2px;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    transition: all 0.2s;
+  }
+  .toggle.on { background: rgba(255,209,102,0.2); border-color: var(--pup-gold); }
+  .toggle.on::after { transform: translateX(20px); background: var(--pup-gold); }
+
+  .export-btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 100px;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 8px;
+  }
+  .export-btn:hover { border-color: var(--pup-mint); color: var(--pup-mint); }
+
+  /* ---- CRISIS BANNER ---- */
+  .crisis-banner {
+    background: rgba(255,107,107,0.1);
+    border: 1px solid rgba(255,107,107,0.3);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    font-size: 0.85rem;
+    color: #FFB3B3;
+    line-height: 1.5;
+    display: none;
+  }
+  .crisis-banner.show { display: block; }
+  .crisis-banner strong { color: var(--crisis-red); }
+
+  /* ---- SCROLLBAR ---- */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  /* ---- INSTALL BANNER ---- */
+  .install-banner {
+    background: linear-gradient(135deg, rgba(255,209,102,0.1), rgba(255,140,105,0.1));
+    border: 1px solid rgba(255,209,102,0.2);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    margin: 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .install-text { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; }
+  .install-btn-small {
+    padding: 6px 14px;
+    border-radius: 100px;
+    border: none;
+    background: linear-gradient(135deg, var(--pup-gold), var(--pup-warm));
+    color: var(--bg);
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 0.75rem;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .dismiss-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1rem; padding: 4px; }
+
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- HOME SCREEN -->
+  <div class="screen active" id="screen-home">
+    <div class="app-header">
+      <div class="logo">
+        <span class="logo-pup">🐾</span> SupportPup
+      </div>
+      <button class="header-btn" onclick="showSettings()">⚙️</button>
+    </div>
+
+    <div id="install-banner" class="install-banner" style="display:none; margin-bottom:8px;">
+      <span class="install-text">📱 Add to home screen for faster access</span>
+      <button class="install-btn-small" onclick="installPWA()">Install</button>
+      <button class="dismiss-btn" onclick="dismissInstall()">✕</button>
+    </div>
+
+    <div class="home-content">
+      <div class="mascot-area">
+        <svg class="mascot-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" onclick="pupBlink()">
+          <!-- Body -->
+          <ellipse cx="100" cy="130" rx="52" ry="45" fill="#C8854A"/>
+          <!-- Belly -->
+          <ellipse cx="100" cy="138" rx="32" ry="30" fill="#F4C07E"/>
+          <!-- Head -->
+          <ellipse cx="100" cy="85" rx="52" ry="48" fill="#C8854A"/>
+          <!-- Ears -->
+          <ellipse cx="57" cy="62" rx="20" ry="28" fill="#A0622E" transform="rotate(-15 57 62)"/>
+          <ellipse cx="143" cy="62" rx="20" ry="28" fill="#A0622E" transform="rotate(15 143 62)"/>
+          <ellipse cx="57" cy="62" rx="13" ry="20" fill="#C97D5A" transform="rotate(-15 57 62)"/>
+          <ellipse cx="143" cy="62" rx="13" ry="20" fill="#C97D5A" transform="rotate(15 143 62)"/>
+          <!-- Snout -->
+          <ellipse cx="100" cy="100" rx="26" ry="20" fill="#F4C07E"/>
+          <!-- Nose -->
+          <ellipse cx="100" cy="90" rx="11" ry="8" fill="#2D1520"/>
+          <!-- Nose shine -->
+          <ellipse cx="95" cy="87" rx="3" ry="2" fill="rgba(255,255,255,0.5)"/>
+          <!-- Eyes group -->
+          <g id="pup-eyes">
+            <!-- Left eye -->
+            <ellipse cx="80" cy="72" rx="10" ry="10" fill="#FFEAA0"/>
+            <ellipse cx="80" cy="72" rx="7" ry="7" fill="#3D2000"/>
+            <ellipse cx="77" cy="69" rx="2.5" ry="2.5" fill="white"/>
+            <!-- Right eye -->
+            <ellipse cx="120" cy="72" rx="10" ry="10" fill="#FFEAA0"/>
+            <ellipse cx="120" cy="72" rx="7" ry="7" fill="#3D2000"/>
+            <ellipse cx="117" cy="69" rx="2.5" ry="2.5" fill="white"/>
+          </g>
+          <!-- Blink overlay (hidden) -->
+          <g id="pup-blink" style="display:none">
+            <ellipse cx="80" cy="72" rx="10" ry="3" fill="#C8854A"/>
+            <ellipse cx="120" cy="72" rx="10" ry="3" fill="#C8854A"/>
+          </g>
+          <!-- Mouth smile -->
+          <path d="M 87 110 Q 100 122 113 110" stroke="#2D1520" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <!-- Tongue -->
+          <ellipse cx="100" cy="116" rx="8" ry="6" fill="#FF8C8C"/>
+          <!-- Paws -->
+          <ellipse cx="72" cy="168" rx="18" ry="12" fill="#C8854A"/>
+          <ellipse cx="128" cy="168" rx="18" ry="12" fill="#C8854A"/>
+          <!-- Paw toes -->
+          <ellipse cx="64" cy="164" rx="5" ry="4" fill="#A0622E"/>
+          <ellipse cx="72" cy="162" rx="5" ry="4" fill="#A0622E"/>
+          <ellipse cx="80" cy="164" rx="5" ry="4" fill="#A0622E"/>
+          <ellipse cx="120" cy="164" rx="5" ry="4" fill="#A0622E"/>
+          <ellipse cx="128" cy="162" rx="5" ry="4" fill="#A0622E"/>
+          <ellipse cx="136" cy="164" rx="5" ry="4" fill="#A0622E"/>
+          <!-- Heart -->
+          <g transform="translate(88, 130) scale(0.5)">
+            <path d="M12 21.593c-5.63-5.539-11-10.297-11-14.402 0-3.791 3.068-5.191 5.281-5.191 1.312 0 4.151.501 5.719 4.457 1.59-3.968 4.464-4.447 5.726-4.447 2.54 0 5.274 1.621 5.274 5.181 0 4.069-5.136 8.625-11 14.402z" fill="#FF6B6B"/>
+          </g>
+          <!-- Collar -->
+          <rect x="72" y="113" width="56" height="10" rx="5" fill="#FFD166"/>
+          <circle cx="100" cy="118" r="5" fill="#C8A000"/>
+        </svg>
+        <div class="mascot-greeting">Hey, I'm <span>Pup</span>! 🐾<br>I'm here with you.</div>
+        <p class="mascot-sub">Tap the button when you need someone to talk to. No judgment, just support.</p>
+      </div>
+
+      <div class="talk-btn-wrap">
+        <!-- Pre-check distress -->
+        <div class="distress-card">
+          <div class="distress-title">How are you feeling? <span style="opacity:0.5">(optional)</span></div>
+          <div class="distress-pills" id="distress-pre">
+            <button class="distress-pill" data-val="1" onclick="selectDistress('pre',1)"><span class="emoji">😌</span>Calm</button>
+            <button class="distress-pill" data-val="2" onclick="selectDistress('pre',2)"><span class="emoji">😕</span>Uneasy</button>
+            <button class="distress-pill" data-val="3" onclick="selectDistress('pre',3)"><span class="emoji">😰</span>Stressed</button>
+            <button class="distress-pill" data-val="4" onclick="selectDistress('pre',4)"><span class="emoji">😢</span>Overwhelmed</button>
+            <button class="distress-pill" data-val="5" onclick="selectDistress('pre',5)"><span class="emoji">🆘</span>Crisis</button>
+          </div>
+        </div>
+
+        <button class="talk-btn" id="talk-btn" onclick="startSession()">
+          <span class="btn-icon">🐾</span>
+          <span class="btn-label">I'm Triggered</span>
+          <span class="btn-sub">Tap to Talk</span>
+        </button>
+        <span class="talk-hint">Your pocket support dog is ready 🐕</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- RECORDING SCREEN -->
+  <div class="screen" id="screen-recording">
+    <div class="app-header">
+      <button class="header-btn" onclick="cancelSession()">←</button>
+      <div class="logo"><span class="logo-pup">🐾</span> Listening...</div>
+      <div style="width:38px"></div>
+    </div>
+
+    <div class="recording-content">
+      <div class="waveform-area" id="waveform">
+        <div class="wave-bar" style="height:8px"></div>
+        <div class="wave-bar" style="height:8px"></div>
+        <div class="wave-bar" style="height:8px"></div>
+        <div class="wave-bar" style="height:8px"></div>
+        <div class="wave-bar" style="height:8px"></div>
+        <div class="wave-bar" style="height:8px"></div>
+        <div class="wave-bar" style="height:8px"></div>
+        <div class="wave-bar" style="height:8px"></div>
+        <div class="wave-bar" style="height:8px"></div>
+      </div>
+
+      <div class="recording-label" id="rec-label">🔴 Recording... Speak freely</div>
+
+      <div style="width:100%">
+        <textarea class="transcript-box" id="transcript-input" rows="5" 
+          placeholder="Your words will appear here as you speak... or type directly if you prefer."></textarea>
+      </div>
+
+      <div style="display:flex; gap:10px; align-items:center; width:100%">
+        <button class="btn-secondary" id="rec-toggle-btn" onclick="toggleRecording()">⏹ Stop</button>
+        <button class="btn-secondary" onclick="switchToText()">⌨️ Type Instead</button>
+      </div>
+
+      <div class="recording-actions">
+        <button class="btn-secondary" onclick="cancelSession()">Cancel</button>
+        <button class="btn-primary" onclick="submitToAI()">💛 Talk to Pup</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESPONSE SCREEN -->
+  <div class="screen" id="screen-response">
+    <div class="app-header">
+      <button class="header-btn" onclick="goHome()">🏠</button>
+      <div class="logo"><span class="logo-pup">🐾</span> Pup Says...</div>
+      <div style="width:38px"></div>
+    </div>
+
+    <div class="response-content">
+      <div class="pup-bubble">
+        <div class="pup-bubble-header">
+          <div class="pup-avatar">🐾</div>
+          <div>
+            <div class="pup-name">SupportPup</div>
+            <div class="pup-name-sub">Your pocket companion</div>
+          </div>
+        </div>
+        <div class="pup-response-text" id="ai-response">
+          <div class="typing-dots">
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="crisis-banner" class="crisis-banner">
+        <strong>💛 You matter.</strong> If you're in a really hard moment, please consider reaching out to someone you trust or calling/texting 988 (Suicide & Crisis Lifeline) — available 24/7.
+      </div>
+
+      <div class="tool-section" id="tool-section" style="display:none">
+        <div class="tool-section-title">🌿 Would you like to try a tool?</div>
+        <div class="tool-chips" id="tool-chips"></div>
+      </div>
+
+      <div class="after-check" id="after-check" style="display:none">
+        <div class="distress-title" style="text-align:left; margin-bottom:12px">How do you feel now?</div>
+        <div class="distress-pills" id="distress-post">
+          <button class="distress-pill" data-val="1" onclick="selectDistress('post',1)"><span class="emoji">😌</span>Better</button>
+          <button class="distress-pill" data-val="2" onclick="selectDistress('post',2)"><span class="emoji">🙂</span>Bit better</button>
+          <button class="distress-pill" data-val="3" onclick="selectDistress('post',3)"><span class="emoji">😐</span>Same</button>
+          <button class="distress-pill" data-val="4" onclick="selectDistress('post',4)"><span class="emoji">😔</span>Worse</button>
+        </div>
+      </div>
+
+      <button class="session-done-btn" id="done-btn" onclick="completeSession()" style="display:none">
+        ✓ Session Complete — Good job, you showed up 🐾
+      </button>
+    </div>
+  </div>
+
+  <!-- HISTORY SCREEN -->
+  <div class="screen" id="screen-history">
+    <div class="app-header">
+      <div class="logo"><span class="logo-pup">📖</span> Your Journey</div>
+      <button class="header-btn" onclick="exportData()">↗</button>
+    </div>
+    <div class="screen-content" id="history-list">
+      <div class="history-empty">
+        <span class="empty-icon">🐾</span>
+        <p>No sessions yet. Your first conversation with Pup will be saved here.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOOLS SCREEN -->
+  <div class="screen" id="screen-tools">
+    <div class="app-header">
+      <div class="logo"><span class="logo-pup">🧰</span> Grounding Tools</div>
+    </div>
+    <div class="screen-content">
+      <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:16px; line-height:1.5">These tools can help ground you in the present moment. Tap any to try it.</p>
+      <div class="tools-grid">
+        <div class="tool-card" onclick="openTool('grounding')">
+          <span class="tool-icon">👁️</span>
+          <div class="tool-name">5-4-3-2-1 Grounding</div>
+          <div class="tool-desc">Connect with your senses right now</div>
+        </div>
+        <div class="tool-card" onclick="openTool('breathing')">
+          <span class="tool-icon">🌬️</span>
+          <div class="tool-name">4-6 Calm Breath</div>
+          <div class="tool-desc">Slow your nervous system</div>
+        </div>
+        <div class="tool-card" onclick="openTool('gratitude')">
+          <span class="tool-icon">💛</span>
+          <div class="tool-name">Gratitude Micro-Check</div>
+          <div class="tool-desc">One small thing to appreciate</div>
+        </div>
+        <div class="tool-card" onclick="openTool('reframe')">
+          <span class="tool-icon">🔭</span>
+          <div class="tool-name">Wiser Self Reframe</div>
+          <div class="tool-desc">Perspective from your future</div>
+        </div>
+        <div class="tool-card" onclick="openTool('safe')">
+          <span class="tool-icon">🌅</span>
+          <div class="tool-name">Safe Place Visualization</div>
+          <div class="tool-desc">Go somewhere peaceful in your mind</div>
+        </div>
+        <div class="tool-card" onclick="openTool('physical')">
+          <span class="tool-icon">🤸</span>
+          <div class="tool-name">Physical Reset</div>
+          <div class="tool-desc">Release tension from your body</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS SCREEN -->
+  <div class="screen" id="screen-settings">
+    <div class="app-header">
+      <button class="header-btn" onclick="navTo('home')">←</button>
+      <div class="logo"><span class="logo-pup">⚙️</span> Settings</div>
+      <div style="width:38px"></div>
+    </div>
+    <div class="screen-content">
+      <div class="settings-section">
+        <div class="settings-section-title">Input</div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-row-label">Voice Input</div>
+            <div class="settings-row-sub">Use microphone to speak</div>
+          </div>
+          <div class="toggle on" id="toggle-voice" onclick="toggleSetting('voice')"></div>
+        </div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-row-label">Reminders</div>
+            <div class="settings-row-sub">Daily check-in notifications</div>
+          </div>
+          <div class="toggle" id="toggle-reminders" onclick="toggleSetting('reminders')"></div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-title">Privacy</div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-row-label">Local Storage Only</div>
+            <div class="settings-row-sub">Your data never leaves this device</div>
+          </div>
+          <div style="font-size:1.2rem">🔒</div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-title">Data</div>
+        <button class="export-btn" onclick="exportData()">📤 Export My Sessions</button>
+        <button class="export-btn" onclick="clearData()" style="margin-top:8px; border-color:rgba(255,107,107,0.3); color:var(--crisis-red)">🗑️ Clear All Data</button>
+      </div>
+
+      <div style="text-align:center; padding:20px 0; color:var(--text-muted); font-size:0.75rem; line-height:1.6">
+        SupportPup is not a substitute for professional mental health care.<br>
+        In a crisis, please contact 988 or your local emergency services.<br><br>
+        Built with 💛 by Number One Son Software<br>
+        v1.0.0 — All data stays on your device
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <nav class="nav-tabs" id="main-nav">
+    <button class="nav-tab active" id="nav-home" onclick="navTo('home')">
+      <span class="icon">🏠</span>Home
+    </button>
+    <button class="nav-tab" id="nav-history" onclick="navTo('history')">
+      <span class="icon">📖</span>Journal
+    </button>
+    <button class="nav-tab" id="nav-tools" onclick="navTo('tools')">
+      <span class="icon">🌿</span>Tools
+    </button>
+  </nav>
+</div>
+
+<!-- TOOL MODAL -->
+<div class="modal-overlay" id="tool-modal" onclick="closeModal(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-title">Tool</div>
+    <div class="modal-sub" id="modal-sub"></div>
+    <div id="modal-body"></div>
+    <button class="modal-close-btn" onclick="closeModalDirect()">Done — Thank you, Pup 🐾</button>
+  </div>
+</div>
+
+<script>
+// ========== CONFIG ==========
+// API key lives in Vercel env only — never in client code
+
+// ========== STATE ==========
+let state = {
+  currentScreen: 'home',
+  preDistress: null,
+  postDistress: null,
+  transcript: '',
+  isRecording: false,
+  recognition: null,
+  sessions: [],
+  settings: { voice: true, reminders: false },
+  currentSession: null,
+  deferredInstall: null
+};
+
+// ========== INIT ==========
+function init() {
+  const saved = localStorage.getItem('sp_sessions');
+  if (saved) state.sessions = JSON.parse(saved);
+  const settings = localStorage.getItem('sp_settings');
+  if (settings) state.settings = { ...state.settings, ...JSON.parse(settings) };
+  updateToggles();
+}
+
+// ========== NAVIGATION ==========
+function navTo(screen) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('screen-' + screen).classList.add('active');
+  const navEl = document.getElementById('nav-' + screen);
+  if (navEl) navEl.classList.add('active');
+  state.currentScreen = screen;
+  if (screen === 'history') renderHistory();
+  const nav = document.getElementById('main-nav');
+  nav.style.display = ['home','history','tools'].includes(screen) ? 'flex' : 'none';
+}
+
+function showSettings() { navTo('settings'); }
+
+// ========== SESSION FLOW ==========
+function startSession() {
+  navTo('recording');
+  document.getElementById('main-nav').style.display = 'none';
+  document.getElementById('transcript-input').value = '';
+  if (state.settings.voice) startVoiceRecording();
+}
+
+function cancelSession() {
+  stopRecording();
+  navTo('home');
+}
+
+function startVoiceRecording() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    document.getElementById('rec-label').textContent = '⌨️ Type your thoughts below';
+    return;
+  }
+  state.recognition = new SpeechRecognition();
+  state.recognition.continuous = true;
+  state.recognition.interimResults = true;
+  state.recognition.lang = 'en-US';
+  let finalTranscript = '';
+  state.recognition.onresult = (event) => {
+    let interim = '';
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      if (event.results[i].isFinal) finalTranscript += event.results[i][0].transcript + ' ';
+      else interim += event.results[i][0].transcript;
+    }
+    document.getElementById('transcript-input').value = finalTranscript + interim;
+    document.getElementById('rec-label').textContent = '🔴 Listening... keep going';
+  };
+  state.recognition.onerror = () => {
+    document.getElementById('rec-label').textContent = '⌨️ Type your thoughts below';
+  };
+  state.recognition.start();
+  state.isRecording = true;
+}
+
+function toggleRecording() {
+  if (state.isRecording) {
+    stopRecording();
+    document.getElementById('rec-label').textContent = '✅ Recording stopped — ready to submit';
+    document.getElementById('rec-toggle-btn').textContent = '🎙 Resume';
+    state.isRecording = false;
+  } else {
+    startVoiceRecording();
+    document.getElementById('rec-label').textContent = '🔴 Recording...';
+    document.getElementById('rec-toggle-btn').textContent = '⏹ Stop';
+  }
+}
+
+function stopRecording() {
+  if (state.recognition) {
+    try { state.recognition.stop(); } catch(e) {}
+    state.recognition = null;
+  }
+  state.isRecording = false;
+}
+
+function switchToText() {
+  stopRecording();
+  document.getElementById('rec-label').textContent = '⌨️ Type your thoughts below';
+  document.getElementById('transcript-input').focus();
+}
+
+async function submitToAI() {
+  const text = document.getElementById('transcript-input').value.trim();
+  if (!text) {
+    document.getElementById('transcript-input').placeholder = '✍️ Please share what\'s on your mind first...';
+    return;
+  }
+  stopRecording();
+  state.transcript = text;
+  state.currentSession = {
+    id: Date.now(),
+    timestamp: new Date().toISOString(),
+    preDistress: state.preDistress,
+    transcript: text,
+    aiResponse: '',
+    toolUsed: null,
+    postDistress: null
+  };
+  navTo('response');
+  document.getElementById('main-nav').style.display = 'none';
+  document.getElementById('after-check').style.display = 'none';
+  document.getElementById('done-btn').style.display = 'none';
+  document.getElementById('tool-section').style.display = 'none';
+  document.getElementById('crisis-banner').classList.remove('show');
+  document.getElementById('ai-response').innerHTML = '<div class="typing-dots"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
+  await getAIResponse(text);
+}
+
+async function getAIResponse(userText) {
+  const isCrisis = state.preDistress >= 5 || /crisis|hurt myself|end it|suicide|want to die/i.test(userText);
+  if (isCrisis) document.getElementById('crisis-banner').classList.add('show');
+
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userText, preDistress: state.preDistress })
+    });
+    if (!res.ok) throw new Error('proxy error');
+    const data = await res.json();
+    const resp = data.response || "I'm here with you. Take one slow breath. You're safe right now. 🐾";
+    typeResponse(resp);
+    if (state.currentSession) state.currentSession.aiResponse = resp;
+  } catch (e) {
+    const fallbacks = [
+      "I hear you, and I'm really glad you reached out. What you're feeling makes sense. Right now, in this moment, you are safe. Take one slow breath in and let it out. Would you like to try the 5-4-3-2-1 grounding exercise? 🐾",
+      "Thank you for trusting me with this. Those feelings are real and valid. Right now you're here, and that's enough. Take a gentle breath and wiggle your toes. Want to try a calming breath exercise? 💛",
+      "That sounds really hard, and I'm here with you. You reached out and that takes courage. Right now this moment is yours and you are safe in it. Place your hand on your heart. Want to try a grounding scan? 🌿"
+    ];
+    const resp = fallbacks[Math.floor(Math.random() * fallbacks.length)];
+    typeResponse(resp);
+    if (state.currentSession) state.currentSession.aiResponse = resp;
+  }
+}
+
+function typeResponse(text) {
+  const el = document.getElementById('ai-response');
+  el.textContent = '';
+  let i = 0;
+  const interval = setInterval(() => {
+    if (i < text.length) {
+      el.textContent += text[i];
+      i++;
+    } else {
+      clearInterval(interval);
+      showToolSuggestions();
+      setTimeout(() => {
+        document.getElementById('after-check').style.display = 'block';
+        document.getElementById('done-btn').style.display = 'block';
+      }, 800);
+    }
+  }, 18);
+}
+
+function showToolSuggestions() {
+  const tools = [
+    { id: 'grounding', label: '👁️ 5-4-3-2-1 Scan' },
+    { id: 'breathing', label: '🌬️ Calm Breath' },
+    { id: 'reframe', label: '🔭 Wiser Self' },
+    { id: 'gratitude', label: '💛 Gratitude' },
+  ];
+  const section = document.getElementById('tool-section');
+  const chips = document.getElementById('tool-chips');
+  chips.innerHTML = tools.map(t => 
+    `<button class="tool-chip" onclick="openTool('${t.id}')">${t.label}</button>`
+  ).join('');
+  section.style.display = 'block';
+}
+
+function completeSession() {
+  if (state.currentSession) {
+    state.sessions.unshift(state.currentSession);
+    localStorage.setItem('sp_sessions', JSON.stringify(state.sessions.slice(0, 100)));
+  }
+  state.preDistress = null;
+  state.postDistress = null;
+  state.transcript = '';
+  state.currentSession = null;
+  document.querySelectorAll('.distress-pill').forEach(p => p.classList.remove('selected'));
+  navTo('home');
+}
+
+function goHome() {
+  completeSession();
+}
+
+// ========== DISTRESS SCALE ==========
+function selectDistress(type, val) {
+  const containerId = type === 'pre' ? 'distress-pre' : 'distress-post';
+  document.querySelectorAll(`#${containerId} .distress-pill`).forEach(p => p.classList.remove('selected'));
+  event.currentTarget.classList.add('selected');
+  if (type === 'pre') {
+    state.preDistress = val;
+  } else {
+    state.postDistress = val;
+    if (state.currentSession) state.currentSession.postDistress = val;
+  }
+}
+
+// ========== TOOLS ==========
+const TOOLS = {
+  grounding: {
+    title: '👁️ 5-4-3-2-1 Grounding',
+    sub: 'This exercise connects you to your present senses — pulling your attention away from thoughts and into right now.',
+    steps: [
+      { label: 'SEE', text: 'Name 5 things you can see right now. Look slowly around the room. Notice colors, shapes, light.' },
+      { label: 'TOUCH', text: 'Name 4 things you can physically feel. Your clothes on your skin, your feet on the floor, the temperature of the air.' },
+      { label: 'HEAR', text: 'Name 3 things you can hear. Close your eyes. Near sounds and far sounds.' },
+      { label: 'SMELL', text: 'Name 2 things you can smell. If nothing strong, notice the quality of the air.' },
+      { label: 'TASTE', text: 'Name 1 thing you can taste right now. Notice the inside of your mouth.' }
+    ]
+  },
+  breathing: {
+    title: '🌬️ 4-6 Calm Breath',
+    sub: 'This breathing pattern activates your parasympathetic nervous system, slowing your heart rate and calming your body.',
+    steps: [
+      { label: 'PREPARE', text: 'Sit or lie comfortably. Place one hand on your chest, one on your belly. We want belly breathing.' },
+      { label: 'INHALE', text: 'Breathe in slowly through your nose for 4 counts: 1... 2... 3... 4. Feel your belly rise.' },
+      { label: 'EXHALE', text: 'Breathe out slowly through your mouth for 6 counts: 1... 2... 3... 4... 5... 6. Belly falls.' },
+      { label: 'REPEAT', text: 'Do this 4-6 times. Each exhale, let your shoulders drop a little more. You are safe right now.' }
+    ]
+  },
+  gratitude: {
+    title: '💛 Gratitude Micro-Check',
+    sub: 'Not toxic positivity — just a small anchor. One real thing, however small.',
+    steps: [
+      { label: 'PAUSE', text: 'Take a breath. We\'re not dismissing what\'s hard — we\'re just finding one small anchor.' },
+      { label: 'LOOK SMALL', text: 'Think of one very small thing right now: warmth of a blanket, a cup of something warm, a pet nearby, sunlight through a window.' },
+      { label: 'FEEL IT', text: 'Don\'t just think it — actually feel it for 10 seconds. Let it be real in your body, however briefly.' },
+      { label: 'HOLD IT', text: 'That\'s it. You just found a real thing that exists alongside the hard thing. Both can be true.' }
+    ]
+  },
+  reframe: {
+    title: '🔭 Your Wiser Self',
+    sub: 'Imagine a version of you — 10 or 20 years from now — who has grown through hard things. What would they say to you right now?',
+    steps: [
+      { label: 'CLOSE YOUR EYES', text: 'Take a slow breath. Imagine sitting across from a future version of yourself. Older. Wiser. They\'ve been through hard things — including this.' },
+      { label: 'LISTEN', text: 'What does your wiser self want you to know right now? Not advice — just something kind. Let it come naturally.' },
+      { label: 'THE MESSAGE', text: 'Your wiser self knows you survived this. They\'re reaching back to tell you: you are not alone in this moment, and it won\'t always feel this way.' },
+      { label: 'RETURN', text: 'Open your eyes. You just accessed your own resilience. It was already inside you.' }
+    ]
+  },
+  safe: {
+    title: '🌅 Safe Place Visualization',
+    sub: 'Create a mental sanctuary — somewhere your nervous system can rest for a moment.',
+    steps: [
+      { label: 'CLOSE YOUR EYES', text: 'Breathe slowly. Think of a place — real or imagined — where you have felt completely safe. A beach, a forest, a cozy room, a garden. Anywhere.' },
+      { label: 'BUILD IT', text: 'What does it look like? What\'s the light like? Is it warm or cool? What sounds are there? What do you smell?' },
+      { label: 'STEP IN', text: 'Imagine stepping into this place. Feel the ground beneath you. Look around slowly. You are welcome here. This place is always available to you.' },
+      { label: 'REST', text: 'Stay here for 60 seconds if you can. Your nervous system is grateful for even a moment of imagined safety. It counts.' }
+    ]
+  },
+  physical: {
+    title: '🤸 Physical Reset',
+    sub: 'Trauma lives in the body. These simple moves help release stored tension.',
+    steps: [
+      { label: 'SHOULDERS', text: 'Roll your shoulders backward 5 times, slowly. Notice where you\'ve been holding tension.' },
+      { label: 'JAW', text: 'Unclench your jaw. Let your mouth open slightly. Wiggle it gently side to side. Many people don\'t realize how tightly they hold this.' },
+      { label: 'HANDS', text: 'Shake out both hands for 10 seconds like you\'re shaking off water. Feel the tingling.' },
+      { label: 'FEET', text: 'Press both feet firmly into the floor. Feel the ground. You are earthed. You are here.' }
+    ]
+  }
+};
+
+function openTool(toolId) {
+  const tool = TOOLS[toolId];
+  if (!tool) return;
+  document.getElementById('modal-title').textContent = tool.title;
+  document.getElementById('modal-sub').textContent = tool.sub;
+  document.getElementById('modal-body').innerHTML = tool.steps.map((s, i) =>
+    `<div class="exercise-step">
+      <div class="step-num">${i+1}</div>
+      <div class="step-text"><div class="step-label">${s.label}</div>${s.text}</div>
+    </div>`
+  ).join('');
+  document.getElementById('tool-modal').classList.add('open');
+  if (state.currentSession) state.currentSession.toolUsed = toolId;
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('tool-modal')) closeModalDirect();
+}
+function closeModalDirect() {
+  document.getElementById('tool-modal').classList.remove('open');
+}
+
+// ========== HISTORY ==========
+function renderHistory() {
+  const container = document.getElementById('history-list');
+  if (!state.sessions.length) {
+    container.innerHTML = '<div class="history-empty"><span class="empty-icon">🐾</span><p>No sessions yet. Your first conversation with Pup will be saved here.</p></div>';
+    return;
+  }
+  const distressLabels = ['','Calm','Uneasy','Stressed','Overwhelmed','Crisis'];
+  const badgeClasses = ['','badge-1','badge-2','badge-3','badge-4','badge-5'];
+  container.innerHTML = '<div class="screen-title">Your Sessions</div>' + state.sessions.map(s => {
+    const d = new Date(s.timestamp);
+    const dateStr = d.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) + ' · ' + d.toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit' });
+    const badge = s.preDistress ? `<span class="session-distress-badge ${badgeClasses[s.preDistress]}">${distressLabels[s.preDistress]}</span>` : '';
+    return `<div class="session-card">
+      <div class="session-card-header">
+        <span class="session-date">${dateStr}</span>
+        ${badge}
+      </div>
+      <div class="session-preview">${s.transcript}</div>
+    </div>`;
+  }).join('');
+}
+
+// ========== SETTINGS ==========
+function toggleSetting(key) {
+  state.settings[key] = !state.settings[key];
+  localStorage.setItem('sp_settings', JSON.stringify(state.settings));
+  updateToggles();
+}
+
+function updateToggles() {
+  document.getElementById('toggle-voice').className = 'toggle' + (state.settings.voice ? ' on' : '');
+  document.getElementById('toggle-reminders').className = 'toggle' + (state.settings.reminders ? ' on' : '');
+}
+
+function exportData() {
+  const data = JSON.stringify({ sessions: state.sessions, exportedAt: new Date().toISOString() }, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'supportpup-sessions.json'; a.click();
+  URL.revokeObjectURL(url);
+}
+
+function clearData() {
+  if (confirm('Clear all sessions? This cannot be undone.')) {
+    state.sessions = [];
+    localStorage.removeItem('sp_sessions');
+    renderHistory();
+    alert('All sessions cleared. 🐾 Fresh start.');
+  }
+}
+
+// ========== MASCOT ==========
+function pupBlink() {
+  const blink = document.getElementById('pup-blink');
+  blink.style.display = 'block';
+  setTimeout(() => blink.style.display = 'none', 150);
+}
+
+// ========== PWA ==========
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  state.deferredInstall = e;
+  document.getElementById('install-banner').style.display = 'flex';
+});
+
+async function installPWA() {
+  if (state.deferredInstall) {
+    state.deferredInstall.prompt();
+    const result = await state.deferredInstall.userChoice;
+    if (result.outcome === 'accepted') dismissInstall();
+  }
+}
+
+function dismissInstall() {
+  document.getElementById('install-banner').style.display = 'none';
+}
+
+// ========== BOOT ==========
+init();
+</script>
+
+<!-- Service Worker Registration -->
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
+</script>
+</body>
+</html>
