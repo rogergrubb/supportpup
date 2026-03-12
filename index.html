@@ -1087,6 +1087,24 @@
       </div>
 
       <div class="settings-section">
+        <div class="settings-section-title">Pup's Voice</div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-row-label">🔊 Read Responses Aloud</div>
+            <div class="settings-row-sub">Calm female voice reads Pup's replies</div>
+          </div>
+          <div class="toggle" id="toggle-pupVoice" onclick="toggleSetting('pupVoice')"></div>
+        </div>
+        <div class="settings-row" id="voice-preview-row" style="display:none">
+          <div>
+            <div class="settings-row-label">Preview Voice</div>
+            <div class="settings-row-sub">Tap to hear a sample</div>
+          </div>
+          <button onclick="previewPupVoice()" style="padding:6px 16px; border-radius:100px; border:1.5px solid var(--pup-gold); background:transparent; color:var(--pup-gold); font-family:'Quicksand',sans-serif; font-weight:700; font-size:0.8rem; cursor:pointer;">▶ Play</button>
+        </div>
+      </div>
+
+      <div class="settings-section">
         <div class="settings-section-title">Privacy</div>
         <div class="settings-row">
           <div>
@@ -1150,7 +1168,7 @@ let state = {
   isRecording: false,
   recognition: null,
   sessions: [],
-  settings: { voice: true, reminders: false },
+  settings: { voice: true, reminders: false, pupVoice: false },
   currentSession: null,
   deferredInstall: null,
   exerciseCompleted: false
@@ -1304,6 +1322,8 @@ async function getAIResponse(userText) {
 function typeResponse(text) {
   const el = document.getElementById('ai-response');
   el.textContent = '';
+  // Cancel any in-progress speech
+  window.speechSynthesis && window.speechSynthesis.cancel();
   let i = 0;
   const interval = setInterval(() => {
     if (i < text.length) {
@@ -1313,8 +1333,46 @@ function typeResponse(text) {
       clearInterval(interval);
       showToolSuggestions();
       // after-check and done-btn shown only after completing an exercise (closeModalDirect handles this)
+      // Speak after text is fully displayed
+      if (state.settings.pupVoice) speakResponse(text);
     }
   }, 18);
+}
+
+function getBestFemaleVoice() {
+  const voices = window.speechSynthesis.getVoices();
+  // Priority order: named calm female voices across platforms
+  const preferred = [
+    'Samantha', 'Karen', 'Moira', 'Tessa',  // macOS/iOS
+    'Microsoft Zira', 'Microsoft Eva',         // Windows
+    'Google UK English Female',                // Chrome
+    'en-US-Neural2-F', 'en-GB-Neural2-F',     // Android/Chrome Neural
+  ];
+  for (const name of preferred) {
+    const match = voices.find(v => v.name.includes(name));
+    if (match) return match;
+  }
+  // Fallback: any English female voice
+  return voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('female'))
+    || voices.find(v => v.lang.startsWith('en'))
+    || voices[0]
+    || null;
+}
+
+function speakResponse(text) {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(text);
+  const voice = getBestFemaleVoice();
+  if (voice) utter.voice = voice;
+  utter.rate = 0.88;   // slightly slower — calm, not rushed
+  utter.pitch = 1.05;  // slightly warm
+  utter.volume = 1;
+  window.speechSynthesis.speak(utter);
+}
+
+function previewPupVoice() {
+  speakResponse("Hi, I'm Pup. I'm right here with you. You're safe in this moment.");
 }
 
 function showToolSuggestions() {
@@ -1491,6 +1549,12 @@ function toggleSetting(key) {
 function updateToggles() {
   document.getElementById('toggle-voice').className = 'toggle' + (state.settings.voice ? ' on' : '');
   document.getElementById('toggle-reminders').className = 'toggle' + (state.settings.reminders ? ' on' : '');
+  const pupVoiceToggle = document.getElementById('toggle-pupVoice');
+  if (pupVoiceToggle) {
+    pupVoiceToggle.className = 'toggle' + (state.settings.pupVoice ? ' on' : '');
+    const previewRow = document.getElementById('voice-preview-row');
+    if (previewRow) previewRow.style.display = state.settings.pupVoice ? 'flex' : 'none';
+  }
 }
 
 function exportData() {
