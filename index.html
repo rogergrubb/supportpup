@@ -684,9 +684,9 @@
   .session-preview {
     font-size: 0.85rem;
     color: var(--text-muted);
-    line-height: 1.4;
+    line-height: 1.5;
     display: -webkit-box;
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
@@ -862,6 +862,9 @@
     font-size: 0.92rem;
     line-height: 1.65;
     font-weight: 500;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: pre-wrap;
   }
 
   .pup-msg .msg-bubble {
@@ -990,6 +993,84 @@
     flex-shrink: 0;
   }
   .chat-end-btn:hover { border-color: var(--pup-soft); color: var(--text); }
+
+  /* ---- MOOD CHART ---- */
+  .chart-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 16px 12px;
+    margin-bottom: 16px;
+  }
+  .chart-title {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 1rem;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .chart-sub {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+  }
+  .chart-wrap {
+    width: 100%;
+    height: 160px;
+    position: relative;
+  }
+  .chart-canvas { width: 100% !important; height: 100% !important; }
+  .chart-legend {
+    display: flex;
+    gap: 16px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+  .legend-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+  }
+  .mood-stats-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .mood-stat {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 10px;
+    text-align: center;
+  }
+  .mood-stat-val {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 900;
+    font-size: 1.5rem;
+    color: var(--pup-gold);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .mood-stat-label {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+  .session-msg-count {
+    font-size: 0.72rem;
+    color: var(--pup-mint);
+    font-weight: 600;
+    margin-top: 4px;
+  }
 </style>
 </head>
 <body>
@@ -1192,6 +1273,8 @@
       </div>
     </div>
   </div>
+  <!-- Chart.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 
   <!-- TOOLS SCREEN -->
   <div class="screen" id="screen-tools">
@@ -1831,26 +1914,183 @@ function closeModalDirect() {
 }
 
 // ========== HISTORY ==========
+let moodChart = null;
+
 function renderHistory() {
   const container = document.getElementById('history-list');
   if (!state.sessions.length) {
     container.innerHTML = '<div class="history-empty"><span class="empty-icon">🐾</span><p>No sessions yet. Your first conversation with Pup will be saved here.</p></div>';
     return;
   }
+
+  const sessions = [...state.sessions].reverse(); // chronological for chart
   const distressLabels = ['','Calm','Uneasy','Stressed','Overwhelmed','Crisis'];
+  const moodColors = ['','#6BCB77','#7FDBCA','#FFD166','#FF8C69','#FF6B6B'];
   const badgeClasses = ['','badge-1','badge-2','badge-3','badge-4','badge-5'];
-  container.innerHTML = '<div class="screen-title">Your Sessions</div>' + state.sessions.map(s => {
+
+  // Stats
+  const withPost = sessions.filter(s => s.postDistress);
+  const improved = withPost.filter(s => s.postDistress < (s.preDistress || 3)).length;
+  const totalSessions = sessions.length;
+  const avgDistress = sessions.filter(s=>s.postDistress).reduce((a,s)=>a+s.postDistress,0) / (withPost.length||1);
+  const streak = calcStreak(sessions);
+
+  // Build chart data — post-session mood over time (1=best, 4=worst), invert for "higher = better"
+  const chartLabels = sessions.map((s,i) => {
     const d = new Date(s.timestamp);
-    const dateStr = d.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) + ' · ' + d.toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit' });
-    const badge = s.preDistress ? `<span class="session-distress-badge ${badgeClasses[s.preDistress]}">${distressLabels[s.preDistress]}</span>` : '';
-    return `<div class="session-card">
-      <div class="session-card-header">
-        <span class="session-date">${dateStr}</span>
-        ${badge}
+    return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  });
+  // Y: post-distress inverted (5-x so higher = better mood), fallback to inverted preDistress
+  const moodData = sessions.map(s => s.postDistress ? (5 - s.postDistress) : (s.preDistress ? (6 - s.preDistress) : null));
+  const preData  = sessions.map(s => s.preDistress  ? (6 - s.preDistress)  : null);
+
+  container.innerHTML = `
+    <div class="mood-stats-row">
+      <div class="mood-stat">
+        <div class="mood-stat-val">${totalSessions}</div>
+        <div class="mood-stat-label">Sessions</div>
       </div>
-      <div class="session-preview">${s.transcript}</div>
-    </div>`;
-  }).join('');
+      <div class="mood-stat">
+        <div class="mood-stat-val">${streak}</div>
+        <div class="mood-stat-label">Day Streak</div>
+      </div>
+      <div class="mood-stat">
+        <div class="mood-stat-val">${withPost.length ? Math.round((improved/withPost.length)*100)+'%' : '—'}</div>
+        <div class="mood-stat-label">Felt Better</div>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-title">Mood Trend</div>
+      <div class="chart-sub">Higher = calmer. Each point is one session with Pup.</div>
+      <div class="chart-wrap">
+        <canvas id="mood-chart-canvas" class="chart-canvas"></canvas>
+      </div>
+      <div class="chart-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#7FDBCA"></div>After session</div>
+        <div class="legend-item"><div class="legend-dot" style="background:rgba(255,209,102,0.5)"></div>Before session</div>
+      </div>
+    </div>
+
+    <div class="screen-title" style="margin-bottom:12px">Sessions</div>
+    ${[...state.sessions].map(s => {
+      const d = new Date(s.timestamp);
+      const dateStr = d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) + ' · ' + d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+      const badge = s.postDistress ? `<span class="session-distress-badge ${badgeClasses[s.postDistress] || ''}">${distressLabels[s.postDistress] || ''}</span>` : (s.preDistress ? `<span class="session-distress-badge ${badgeClasses[s.preDistress]}">${distressLabels[s.preDistress]}</span>` : '');
+      const msgCount = s.messages ? Math.floor(s.messages.length / 2) : 1;
+      return `<div class="session-card">
+        <div class="session-card-header">
+          <span class="session-date">${dateStr}</span>
+          ${badge}
+        </div>
+        <div class="session-preview">${escapeHtml(s.transcript)}</div>
+        <div class="session-msg-count">${msgCount} exchange${msgCount!==1?'s':''} with Pup</div>
+      </div>`;
+    }).join('')}
+  `;
+
+  // Draw chart after DOM paint
+  requestAnimationFrame(() => {
+    const canvas = document.getElementById('mood-chart-canvas');
+    if (!canvas) return;
+    if (moodChart) { moodChart.destroy(); moodChart = null; }
+
+    const ctx = canvas.getContext('2d');
+    moodChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: chartLabels,
+        datasets: [
+          {
+            label: 'After session',
+            data: moodData,
+            borderColor: '#7FDBCA',
+            backgroundColor: 'rgba(127,219,202,0.12)',
+            borderWidth: 2.5,
+            pointBackgroundColor: moodData.map(v => {
+              if (v === null) return 'transparent';
+              if (v >= 4) return '#6BCB77';
+              if (v >= 3) return '#7FDBCA';
+              if (v >= 2) return '#FFD166';
+              return '#FF6B6B';
+            }),
+            pointRadius: 5,
+            pointHoverRadius: 7,
+            tension: 0.4,
+            fill: true,
+            spanGaps: true,
+          },
+          {
+            label: 'Before session',
+            data: preData,
+            borderColor: 'rgba(255,209,102,0.4)',
+            backgroundColor: 'transparent',
+            borderWidth: 1.5,
+            borderDash: [4,4],
+            pointBackgroundColor: 'rgba(255,209,102,0.5)',
+            pointRadius: 3,
+            tension: 0.4,
+            fill: false,
+            spanGaps: true,
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: { duration: 600, easing: 'easeInOutQuart' },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#241540',
+            borderColor: 'rgba(200,168,233,0.2)',
+            borderWidth: 1,
+            titleColor: '#FFD166',
+            bodyColor: '#F0E6FF',
+            callbacks: {
+              label: (ctx) => {
+                const v = ctx.raw;
+                if (v === null) return 'No data';
+                const labels = ['','Crisis','Overwhelmed','Stressed','Uneasy','Calm'];
+                return ' ' + (labels[Math.round(v)] || 'Unknown');
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: { color: 'rgba(200,168,233,0.06)' },
+            ticks: {
+              color: '#9B8AB8', font: { size: 10, family: 'Quicksand' },
+              maxTicksLimit: 6,
+              maxRotation: 0,
+            }
+          },
+          y: {
+            min: 0, max: 5,
+            grid: { color: 'rgba(200,168,233,0.08)' },
+            ticks: {
+              color: '#9B8AB8',
+              font: { size: 10, family: 'Quicksand' },
+              stepSize: 1,
+              callback: v => ['','😰','😕','😐','🙂','😌'][v] || ''
+            }
+          }
+        }
+      }
+    });
+  });
+}
+
+function calcStreak(sessions) {
+  if (!sessions.length) return 0;
+  const days = new Set(sessions.map(s => new Date(s.timestamp).toDateString()));
+  let streak = 0, d = new Date();
+  while (days.has(d.toDateString())) {
+    streak++;
+    d.setDate(d.getDate() - 1);
+  }
+  return streak;
 }
 
 // ========== SETTINGS ==========
