@@ -994,82 +994,189 @@
   }
   .chat-end-btn:hover { border-color: var(--pup-soft); color: var(--text); }
 
-  /* ---- MOOD CHART ---- */
+  /* ---- PREMIUM MOOD CHART ---- */
   .chart-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 18px 16px 12px;
-    margin-bottom: 16px;
+    background: linear-gradient(145deg, rgba(36,21,64,0.95), rgba(26,15,46,0.98));
+    border: 1px solid rgba(200,168,233,0.12);
+    border-radius: 28px;
+    padding: 22px 20px 18px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+  }
+  .chart-card::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(127,219,202,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .chart-card::after {
+    content: '';
+    position: absolute;
+    bottom: -40px; left: -40px;
+    width: 160px; height: 160px;
+    background: radial-gradient(circle, rgba(255,209,102,0.04) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
   }
   .chart-title {
     font-family: 'Nunito', sans-serif;
-    font-weight: 800;
-    font-size: 1rem;
+    font-weight: 900;
+    font-size: 1.05rem;
     color: var(--text);
-    margin-bottom: 4px;
+    letter-spacing: -0.3px;
+  }
+  .chart-badge {
+    font-size: 0.65rem;
+    font-weight: 800;
+    font-family: 'Nunito', sans-serif;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--pup-mint);
+    background: rgba(127,219,202,0.08);
+    border: 1px solid rgba(127,219,202,0.2);
+    padding: 3px 10px;
+    border-radius: 100px;
   }
   .chart-sub {
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     color: var(--text-muted);
-    margin-bottom: 14px;
+    margin-top: 3px;
   }
   .chart-wrap {
     width: 100%;
-    height: 160px;
     position: relative;
+    user-select: none;
   }
-  .chart-canvas { width: 100% !important; height: 100% !important; }
+  .chart-tooltip {
+    position: absolute;
+    background: rgba(20,10,38,0.95);
+    border: 1px solid rgba(200,168,233,0.25);
+    border-radius: 10px;
+    padding: 7px 12px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    z-index: 10;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    transform: translateX(-50%);
+    white-space: nowrap;
+  }
+  .chart-tooltip.visible { opacity: 1; }
+  .chart-tooltip-label {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
+    font-size: 0.8rem;
+    color: var(--pup-gold);
+  }
+  .chart-tooltip-sub {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    margin-top: 1px;
+  }
   .chart-legend {
     display: flex;
-    gap: 16px;
-    margin-top: 10px;
-    flex-wrap: wrap;
+    gap: 18px;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(200,168,233,0.06);
   }
   .legend-item {
     display: flex;
     align-items: center;
-    gap: 5px;
-    font-size: 0.72rem;
+    gap: 7px;
+    font-size: 0.7rem;
     color: var(--text-muted);
     font-weight: 600;
+    letter-spacing: 0.3px;
   }
-  .legend-dot {
-    width: 8px; height: 8px; border-radius: 50%;
+  .legend-line {
+    width: 18px; height: 2px; border-radius: 2px;
   }
   .mood-stats-row {
     display: flex;
     gap: 10px;
-    margin-bottom: 16px;
+    margin-bottom: 20px;
   }
   .mood-stat {
     flex: 1;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 12px 10px;
+    background: linear-gradient(145deg, rgba(36,21,64,0.8), rgba(26,15,46,0.9));
+    border: 1px solid rgba(200,168,233,0.1);
+    border-radius: 18px;
+    padding: 14px 10px;
     text-align: center;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.04);
+    position: relative;
+    overflow: hidden;
+  }
+  .mood-stat::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,209,102,0.03), transparent);
+    border-radius: 18px;
   }
   .mood-stat-val {
     font-family: 'Nunito', sans-serif;
     font-weight: 900;
-    font-size: 1.5rem;
-    color: var(--pup-gold);
+    font-size: 1.7rem;
+    background: linear-gradient(135deg, #FFD166, #FF8C69);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
     line-height: 1;
-    margin-bottom: 4px;
+    margin-bottom: 5px;
   }
   .mood-stat-label {
-    font-size: 0.65rem;
+    font-size: 0.6rem;
     color: var(--text-muted);
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.4px;
+    letter-spacing: 0.6px;
+  }
+  .mood-stat-icon {
+    font-size: 0.9rem;
+    margin-bottom: 3px;
+    display: block;
   }
   .session-msg-count {
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     color: var(--pup-mint);
     font-weight: 600;
-    margin-top: 4px;
+    margin-top: 5px;
+    opacity: 0.8;
+  }
+  /* Chart SVG animation */
+  .chart-path-line {
+    stroke-dasharray: 2000;
+    stroke-dashoffset: 2000;
+    animation: drawLine 1.2s cubic-bezier(0.4,0,0.2,1) forwards;
+  }
+  .chart-path-line-pre {
+    stroke-dasharray: 2000;
+    stroke-dashoffset: 2000;
+    animation: drawLine 1.4s cubic-bezier(0.4,0,0.2,1) 0.2s forwards;
+  }
+  @keyframes drawLine {
+    to { stroke-dashoffset: 0; }
+  }
+  .chart-dot {
+    opacity: 0;
+    animation: dotPop 0.3s ease forwards;
+  }
+  @keyframes dotPop {
+    0% { opacity: 0; transform: scale(0); }
+    70% { transform: scale(1.3); }
+    100% { opacity: 1; transform: scale(1); }
   }
 </style>
 </head>
@@ -1273,8 +1380,7 @@
       </div>
     </div>
   </div>
-  <!-- Chart.js -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
 
   <!-- TOOLS SCREEN -->
   <div class="screen" id="screen-tools">
@@ -1914,8 +2020,6 @@ function closeModalDirect() {
 }
 
 // ========== HISTORY ==========
-let moodChart = null;
-
 function renderHistory() {
   const container = document.getElementById('history-list');
   if (!state.sessions.length) {
@@ -1923,162 +2027,273 @@ function renderHistory() {
     return;
   }
 
-  const sessions = [...state.sessions].reverse(); // chronological for chart
+  const sessions = [...state.sessions].reverse();
   const distressLabels = ['','Calm','Uneasy','Stressed','Overwhelmed','Crisis'];
-  const moodColors = ['','#6BCB77','#7FDBCA','#FFD166','#FF8C69','#FF6B6B'];
-  const badgeClasses = ['','badge-1','badge-2','badge-3','badge-4','badge-5'];
+  const badgeClasses  = ['','badge-1','badge-2','badge-3','badge-4','badge-5'];
+  const withPost  = sessions.filter(s => s.postDistress);
+  const improved  = withPost.filter(s => s.postDistress < (s.preDistress || 3)).length;
+  const streak    = calcStreak(sessions);
+  const feltBetter = withPost.length ? Math.round((improved / withPost.length) * 100) + '%' : '—';
 
-  // Stats
-  const withPost = sessions.filter(s => s.postDistress);
-  const improved = withPost.filter(s => s.postDistress < (s.preDistress || 3)).length;
-  const totalSessions = sessions.length;
-  const avgDistress = sessions.filter(s=>s.postDistress).reduce((a,s)=>a+s.postDistress,0) / (withPost.length||1);
-  const streak = calcStreak(sessions);
-
-  // Build chart data — post-session mood over time (1=best, 4=worst), invert for "higher = better"
-  const chartLabels = sessions.map((s,i) => {
-    const d = new Date(s.timestamp);
-    return d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
-  });
-  // Y: post-distress inverted (5-x so higher = better mood), fallback to inverted preDistress
-  const moodData = sessions.map(s => s.postDistress ? (5 - s.postDistress) : (s.preDistress ? (6 - s.preDistress) : null));
-  const preData  = sessions.map(s => s.preDistress  ? (6 - s.preDistress)  : null);
+  // Y values: invert so higher = calmer (1=crisis→1, 5=calm→5)
+  const postVals = sessions.map(s => s.postDistress ? (6 - s.postDistress) : null);
+  const preVals  = sessions.map(s => s.preDistress  ? (6 - s.preDistress)  : null);
 
   container.innerHTML = `
     <div class="mood-stats-row">
       <div class="mood-stat">
-        <div class="mood-stat-val">${totalSessions}</div>
+        <span class="mood-stat-icon">🗓</span>
+        <div class="mood-stat-val">${sessions.length}</div>
         <div class="mood-stat-label">Sessions</div>
       </div>
       <div class="mood-stat">
+        <span class="mood-stat-icon">🔥</span>
         <div class="mood-stat-val">${streak}</div>
         <div class="mood-stat-label">Day Streak</div>
       </div>
       <div class="mood-stat">
-        <div class="mood-stat-val">${withPost.length ? Math.round((improved/withPost.length)*100)+'%' : '—'}</div>
+        <span class="mood-stat-icon">📈</span>
+        <div class="mood-stat-val">${feltBetter}</div>
         <div class="mood-stat-label">Felt Better</div>
       </div>
     </div>
 
     <div class="chart-card">
-      <div class="chart-title">Mood Trend</div>
-      <div class="chart-sub">Higher = calmer. Each point is one session with Pup.</div>
-      <div class="chart-wrap">
-        <canvas id="mood-chart-canvas" class="chart-canvas"></canvas>
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">Emotional Wellness</div>
+          <div class="chart-sub">Your mood arc over time</div>
+        </div>
+        <div class="chart-badge">LIVE</div>
+      </div>
+      <div class="chart-wrap" id="chart-wrap">
+        <div class="chart-tooltip" id="chart-tooltip">
+          <div class="chart-tooltip-label" id="tt-label"></div>
+          <div class="chart-tooltip-sub" id="tt-sub"></div>
+        </div>
+        ${buildSVGChart(sessions, postVals, preVals)}
       </div>
       <div class="chart-legend">
-        <div class="legend-item"><div class="legend-dot" style="background:#7FDBCA"></div>After session</div>
-        <div class="legend-item"><div class="legend-dot" style="background:rgba(255,209,102,0.5)"></div>Before session</div>
+        <div class="legend-item">
+          <div class="legend-line" style="background:linear-gradient(90deg,#7FDBCA,#6BCB77)"></div>
+          After session
+        </div>
+        <div class="legend-item">
+          <div class="legend-line" style="background:rgba(255,209,102,0.5); border-top: 1px dashed rgba(255,209,102,0.5); height:0;"></div>
+          Before session
+        </div>
       </div>
     </div>
 
-    <div class="screen-title" style="margin-bottom:12px">Sessions</div>
+    <div class="screen-title" style="margin-bottom:12px; font-size:0.95rem; color:var(--text-muted); font-weight:700; text-transform:uppercase; letter-spacing:1px;">Recent Sessions</div>
     ${[...state.sessions].map(s => {
       const d = new Date(s.timestamp);
       const dateStr = d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) + ' · ' + d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
-      const badge = s.postDistress ? `<span class="session-distress-badge ${badgeClasses[s.postDistress] || ''}">${distressLabels[s.postDistress] || ''}</span>` : (s.preDistress ? `<span class="session-distress-badge ${badgeClasses[s.preDistress]}">${distressLabels[s.preDistress]}</span>` : '');
+      const badge = s.postDistress
+        ? '<span class="session-distress-badge ' + (badgeClasses[s.postDistress]||'') + '">' + (distressLabels[s.postDistress]||'') + '</span>'
+        : (s.preDistress ? '<span class="session-distress-badge ' + badgeClasses[s.preDistress] + '">' + distressLabels[s.preDistress] + '</span>' : '');
       const msgCount = s.messages ? Math.floor(s.messages.length / 2) : 1;
-      return `<div class="session-card">
-        <div class="session-card-header">
-          <span class="session-date">${dateStr}</span>
-          ${badge}
-        </div>
-        <div class="session-preview">${escapeHtml(s.transcript)}</div>
-        <div class="session-msg-count">${msgCount} exchange${msgCount!==1?'s':''} with Pup</div>
-      </div>`;
+      return '<div class="session-card">' +
+        '<div class="session-card-header"><span class="session-date">' + dateStr + '</span>' + badge + '</div>' +
+        '<div class="session-preview">' + escapeHtml(s.transcript) + '</div>' +
+        '<div class="session-msg-count">' + msgCount + ' exchange' + (msgCount!==1?'s':'') + ' with Pup</div>' +
+      '</div>';
     }).join('')}
   `;
 
-  // Draw chart after DOM paint
-  requestAnimationFrame(() => {
-    const canvas = document.getElementById('mood-chart-canvas');
-    if (!canvas) return;
-    if (moodChart) { moodChart.destroy(); moodChart = null; }
+  // Attach hover events to SVG dots after render
+  requestAnimationFrame(() => initChartInteraction(sessions, postVals, preVals));
+}
 
-    const ctx = canvas.getContext('2d');
-    moodChart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: chartLabels,
-        datasets: [
-          {
-            label: 'After session',
-            data: moodData,
-            borderColor: '#7FDBCA',
-            backgroundColor: 'rgba(127,219,202,0.12)',
-            borderWidth: 2.5,
-            pointBackgroundColor: moodData.map(v => {
-              if (v === null) return 'transparent';
-              if (v >= 4) return '#6BCB77';
-              if (v >= 3) return '#7FDBCA';
-              if (v >= 2) return '#FFD166';
-              return '#FF6B6B';
-            }),
-            pointRadius: 5,
-            pointHoverRadius: 7,
-            tension: 0.4,
-            fill: true,
-            spanGaps: true,
-          },
-          {
-            label: 'Before session',
-            data: preData,
-            borderColor: 'rgba(255,209,102,0.4)',
-            backgroundColor: 'transparent',
-            borderWidth: 1.5,
-            borderDash: [4,4],
-            pointBackgroundColor: 'rgba(255,209,102,0.5)',
-            pointRadius: 3,
-            tension: 0.4,
-            fill: false,
-            spanGaps: true,
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        animation: { duration: 600, easing: 'easeInOutQuart' },
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            backgroundColor: '#241540',
-            borderColor: 'rgba(200,168,233,0.2)',
-            borderWidth: 1,
-            titleColor: '#FFD166',
-            bodyColor: '#F0E6FF',
-            callbacks: {
-              label: (ctx) => {
-                const v = ctx.raw;
-                if (v === null) return 'No data';
-                const labels = ['','Crisis','Overwhelmed','Stressed','Uneasy','Calm'];
-                return ' ' + (labels[Math.round(v)] || 'Unknown');
-              }
-            }
-          }
-        },
-        scales: {
-          x: {
-            grid: { color: 'rgba(200,168,233,0.06)' },
-            ticks: {
-              color: '#9B8AB8', font: { size: 10, family: 'Quicksand' },
-              maxTicksLimit: 6,
-              maxRotation: 0,
-            }
-          },
-          y: {
-            min: 0, max: 5,
-            grid: { color: 'rgba(200,168,233,0.08)' },
-            ticks: {
-              color: '#9B8AB8',
-              font: { size: 10, family: 'Quicksand' },
-              stepSize: 1,
-              callback: v => ['','😰','😕','😐','🙂','😌'][v] || ''
-            }
-          }
-        }
-      }
+function buildSVGChart(sessions, postVals, preVals) {
+  const W = 340, H = 180;
+  const padL = 28, padR = 16, padT = 12, padB = 32;
+  const chartW = W - padL - padR;
+  const chartH = H - padT - padB;
+  const n = sessions.length;
+  if (n === 0) return '';
+
+  const xOf = i => padL + (n === 1 ? chartW / 2 : (i / (n - 1)) * chartW);
+  const yOf = v => v === null ? null : padT + chartH - ((v - 1) / 4) * chartH;
+
+  // Grid lines
+  let gridLines = '';
+  for (let y = 1; y <= 5; y++) {
+    const yy = padT + chartH - ((y - 1) / 4) * chartH;
+    const moodEmoji = ['','😰','😕','😐','🙂','😌'][y];
+    gridLines += `<line x1="${padL}" y1="${yy}" x2="${W - padR}" y2="${yy}"
+      stroke="rgba(200,168,233,0.06)" stroke-width="1"/>
+      <text x="${padL - 6}" y="${yy + 4}" text-anchor="end" font-size="9" fill="rgba(200,168,233,0.3)"
+        font-family="Quicksand">${moodEmoji}</text>`;
+  }
+
+  // Vertical guide lines
+  for (let i = 0; i < n; i++) {
+    const xx = xOf(i);
+    const d = new Date(sessions[i].timestamp);
+    const label = d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    gridLines += `<line x1="${xx}" y1="${padT}" x2="${xx}" y2="${padT + chartH}"
+      stroke="rgba(200,168,233,0.04)" stroke-width="1"/>`;
+    if (n <= 8 || i % Math.ceil(n/6) === 0) {
+      gridLines += `<text x="${xx}" y="${H - 6}" text-anchor="middle" font-size="8.5"
+        fill="rgba(200,168,233,0.35)" font-family="Quicksand">${label}</text>`;
+    }
+  }
+
+  // Build smooth bezier path from points
+  function smoothPath(vals) {
+    const pts = vals.map((v,i) => v !== null ? [xOf(i), yOf(v)] : null).filter(Boolean);
+    if (pts.length < 2) return pts.length === 1 ? `M${pts[0][0]},${pts[0][1]}` : '';
+    let d = `M${pts[0][0]},${pts[0][1]}`;
+    for (let i = 1; i < pts.length; i++) {
+      const [x0,y0] = pts[i-1], [x1,y1] = pts[i];
+      const cx = (x0 + x1) / 2;
+      d += ` C${cx},${y0} ${cx},${y1} ${x1},${y1}`;
+    }
+    return d;
+  }
+
+  const postPath = smoothPath(postVals);
+  const prePath  = smoothPath(preVals);
+
+  // Area fill path (close below)
+  function areaPath(vals) {
+    const pts = vals.map((v,i) => v !== null ? [xOf(i), yOf(v)] : null).filter(p => p !== null);
+    if (pts.length < 2) return '';
+    let d = `M${pts[0][0]},${padT + chartH}`;
+    d += ` L${pts[0][0]},${pts[0][1]}`;
+    for (let i = 1; i < pts.length; i++) {
+      const [x0,y0] = pts[i-1], [x1,y1] = pts[i];
+      const cx = (x0 + x1) / 2;
+      d += ` C${cx},${y0} ${cx},${y1} ${x1},${y1}`;
+    }
+    d += ` L${pts[pts.length-1][0]},${padT + chartH} Z`;
+    return d;
+  }
+
+  const aFill = areaPath(postVals);
+  const gradId = 'pg' + Date.now();
+  const glowId = 'glow' + Date.now();
+
+  // Dots with staggered animation delays
+  let postDots = '', preDots = '';
+  const moodColors = ['','#FF6B6B','#FF8C69','#FFD166','#7FDBCA','#6BCB77'];
+  postVals.forEach((v,i) => {
+    if (v === null) return;
+    const x = xOf(i), y = yOf(v);
+    const col = moodColors[Math.round(v)] || '#7FDBCA';
+    const delay = (i * 0.08 + 0.8).toFixed(2);
+    postDots += `
+      <circle class="chart-dot" cx="${x}" cy="${y}" r="5.5" fill="${col}"
+        style="animation-delay:${delay}s; transform-origin:${x}px ${y}px"
+        data-idx="${i}" data-type="post"/>
+      <circle class="chart-dot" cx="${x}" cy="${y}" r="3" fill="white" opacity="0.6"
+        style="animation-delay:${delay}s; transform-origin:${x}px ${y}px" pointer-events="none"/>
+      <circle cx="${x}" cy="${y}" r="14" fill="transparent" class="dot-hit"
+        data-idx="${i}" data-type="post" style="cursor:pointer"/>`;
+  });
+  preVals.forEach((v,i) => {
+    if (v === null) return;
+    const x = xOf(i), y = yOf(v);
+    const delay = (i * 0.08 + 1.0).toFixed(2);
+    preDots += `<circle class="chart-dot" cx="${x}" cy="${y}" r="3.5" fill="rgba(255,209,102,0.6)"
+      style="animation-delay:${delay}s; transform-origin:${x}px ${y}px"
+      data-idx="${i}" data-type="pre"/>
+      <circle cx="${x}" cy="${y}" r="12" fill="transparent" class="dot-hit"
+        data-idx="${i}" data-type="pre" style="cursor:pointer"/>`;
+  });
+
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg"
+    style="width:100%;height:auto;overflow:visible" id="mood-svg">
+    <defs>
+      <linearGradient id="${gradId}" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#7FDBCA" stop-opacity="0.22"/>
+        <stop offset="60%" stop-color="#7FDBCA" stop-opacity="0.06"/>
+        <stop offset="100%" stop-color="#7FDBCA" stop-opacity="0"/>
+      </linearGradient>
+      <filter id="${glowId}">
+        <feGaussianBlur stdDeviation="2.5" result="blur"/>
+        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+    </defs>
+
+    ${gridLines}
+
+    <!-- Area fill -->
+    ${aFill ? `<path d="${aFill}" fill="url(#${gradId})"/>` : ''}
+
+    <!-- Pre-session dashed line -->
+    ${prePath ? `<path d="${prePath}" fill="none" stroke="rgba(255,209,102,0.35)"
+      stroke-width="1.5" stroke-dasharray="5,4" class="chart-path-line-pre"/>` : ''}
+
+    <!-- Post-session main line with glow -->
+    ${postPath ? `
+      <path d="${postPath}" fill="none" stroke="rgba(127,219,202,0.25)"
+        stroke-width="5" filter="url(#${glowId})" class="chart-path-line"/>
+      <path d="${postPath}" fill="none" stroke="url(#grad-line-${gradId})"
+        stroke-width="2.5" stroke-linecap="round" class="chart-path-line"/>
+    ` : ''}
+
+    <defs>
+      <linearGradient id="grad-line-${gradId}" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#7FDBCA"/>
+        <stop offset="100%" stop-color="#6BCB77"/>
+      </linearGradient>
+    </defs>
+
+    ${preDots}
+    ${postDots}
+  </svg>`;
+}
+
+function initChartInteraction(sessions, postVals, preVals) {
+  const svg = document.getElementById('mood-svg');
+  const tooltip = document.getElementById('chart-tooltip');
+  const ttLabel = document.getElementById('tt-label');
+  const ttSub   = document.getElementById('tt-sub');
+  const wrap    = document.getElementById('chart-wrap');
+  if (!svg || !tooltip) return;
+
+  const moodNames = ['','Crisis','Overwhelmed','Stressed','Uneasy','Calm'];
+
+  svg.querySelectorAll('.dot-hit').forEach(el => {
+    el.addEventListener('mouseenter', (e) => {
+      const i = parseInt(el.dataset.idx);
+      const type = el.dataset.type;
+      const val = type === 'post' ? postVals[i] : preVals[i];
+      const s = sessions[i];
+      const d = new Date(s.timestamp);
+      const dateStr = d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+      const moodStr = val !== null ? moodNames[Math.round(val)] : '—';
+      ttLabel.textContent = (type === 'post' ? 'After · ' : 'Before · ') + moodStr;
+      ttSub.textContent = dateStr;
+
+      // Position tooltip above the dot
+      const svgRect = svg.getBoundingClientRect();
+      const wrapRect = wrap.getBoundingClientRect();
+      const dotEl = svg.querySelectorAll('.chart-dot')[0];
+      // Use cx/cy from the hit circle
+      const cx = parseFloat(el.getAttribute('cx'));
+      const cy = parseFloat(el.getAttribute('cy'));
+      const svgW = svg.viewBox.baseVal.width;
+      const svgH = svg.viewBox.baseVal.height;
+      const scaleX = svgRect.width / svgW;
+      const scaleY = svgRect.height / svgH;
+      const left = (cx * scaleX) + (svgRect.left - wrapRect.left);
+      const top  = (cy * scaleY) + (svgRect.top - wrapRect.top) - 52;
+
+      tooltip.style.left = left + 'px';
+      tooltip.style.top  = top + 'px';
+      tooltip.classList.add('visible');
     });
+    el.addEventListener('mouseleave', () => tooltip.classList.remove('visible'));
+
+    // Touch support
+    el.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      el.dispatchEvent(new MouseEvent('mouseenter'));
+      setTimeout(() => tooltip.classList.remove('visible'), 2000);
+    }, { passive: false });
   });
 }
 
